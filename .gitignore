@@ -1,0 +1,67 @@
+# Environment & Secrets
+.env
+*.env.local
+
+# Operating System
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Python / Jupyter
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# Visual Studio & SSIS / SSAS (para compañeros en Windows)
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+bin/
+obj/
+Debug/
+Release/
+*.ipch
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cache
+*.ilk
+*.aps
+*.log
+
+# Power BI temporales
+*.tmp
+*.pbit
+
+# Base de datos: ignorar backups generados dinámicamente excepto el entregable original
+*.bak
+!database/backup/Albarran.bak
+!Albarran.bak
+database/data/
+docker_data/
