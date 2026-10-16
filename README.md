@@ -142,22 +142,36 @@ C2-Caso1-IN/
 ├── .gitignore                         # Configurado para Python, SSIS, VS, macOS y Windows
 ├── .env.example                       # Variables de conexión a SQL Server
 ├── requirements.txt                   # Dependencias de Python gestionadas con uv
-├── docs/                              # Documentos del certamen y entregables
+├── docs/                              # Documentos del certamen y especificaciones técnicas
 │   ├── C2-Instrucciones.pdf           # Pauta de evaluación oficial
 │   ├── Caso1.pdf                      # Enunciado del caso Mueblería Albarrán
-│   ├── modelo-dimensional/            # Diagramas y especificación dimensional
+│   ├── modelo-dimensional/            # Especificación técnica dimensional
+│   │   ├── diagrama_modelo_dimensional.md # Diagrama estrella (Mermaid) y diccionario de datos
+│   │   ├── matriz_mapeo_sttm.md       # Matriz Source-to-Target Mapping para SSIS
+│   │   ├── dimension_tiempo.md        # Documentación de generación del calendario
+│   │   └── validacion_cuadratura_dw.md # Protocolo de auditoría y respaldo Albarran_DW.bak
 │   └── presentacion/                  # Diapositivas para la defensa de las fases
 ├── database/
 │   ├── backup/
-│   │   └── Albarran.bak               # Base de datos transaccional original
-│   └── scripts/                       # Scripts DDL de creación del modelo dimensional
+│   │   ├── Albarran.bak               # Base transaccional original (entregable)
+│   │   └── Albarran_DW.bak            # Data Warehouse final post-ETL (entregable)
+│   └── scripts/                       # Scripts SQL del Data Warehouse
+│       ├── 02_crear_modelo_dimensional.sql # DDL físico, PKs, FKs, índices y miembros -1
+│       ├── 03_poblar_dim_tiempo.sql   # Poblado de Dim_Tiempo (2017-2026)
+│       └── 04_validacion_cuadratura_dw.sql # Auditoría cruzada contable y backup
 ├── docker/                            # Entorno SQL Server exclusivo para macOS (ARM64) / Linux
 │   ├── docker-compose.yml             # Contenedor SQL Server 2022 con plataforma linux/amd64
 │   └── restore.sh                     # Script para iniciar Docker y restaurar Albarran.bak en 1 clic
 ├── notebooks/
-│   └── modelo_de_negocios.ipynb       # Notebook de análisis con conexión directa integrada y reset Docker
+│   └── modelo_de_negocios.ipynb       # EDA, 6 KPIs formulados y simulación Kimball en Pandas
 ├── etl/
-│   └── proyecto-ssis/                 # Proyecto SSIS de Visual Studio (Fase 1)
+│   └── proyecto-ssis/                 # Solución oficial SSIS en Visual Studio 2022
+│       ├── Albarran_ETL.sln           # Solución de Visual Studio 2022
+│       ├── Albarran_ETL.dtproj        # Proyecto SSIS (SQLServer2022)
+│       ├── Albarran_OLTP.conmgr       # Conexión OLE DB a Albarran (Origen)
+│       ├── Albarran_DW.conmgr         # Conexión OLE DB a Albarran_DW (Destino)
+│       ├── Project.params             # Parámetros del proyecto
+│       └── README.md                  # Guía paso a paso para desarrollo en Windows
 ├── olap/
 │   └── proyecto-ssas/                 # Proyecto SSAS de Visual Studio (Fase 2)
 └── powerbi/
@@ -182,16 +196,35 @@ El script `restore.sh` está diseñado exclusivamente para este entorno:
    ```bash
    uv run jupyter lab notebooks/modelo_de_negocios.ipynb
    ```
+4. Ejecutar el script DDL de creación de `Albarran_DW`:
+   ```bash
+   docker exec -i sqlserver_albarran /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'StrongPassword123!' -C < database/scripts/02_crear_modelo_dimensional.sql
+   ```
+5. Poblar el calendario en `Dim_Tiempo`:
+   ```bash
+   docker exec -i sqlserver_albarran /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'StrongPassword123!' -C < database/scripts/03_poblar_dim_tiempo.sql
+   ```
+6. Ejecutar la auditoría de cuadratura (validación pre-ETL):
+   ```bash
+   docker exec -i sqlserver_albarran /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'StrongPassword123!' -C < database/scripts/04_validacion_cuadratura_dw.sql
+   ```
 
-### Opción B: Windows 11 x64 (Entorno Nativo de Compañeros)
+### Opción B: Windows 11 x64 (Entorno Nativo de Compañeros con Visual Studio)
 
-En Windows 11 la restauración se realiza directamente sobre la instancia local de SQL Server:
-
-1. Abrir **SQL Server Management Studio (SSMS)**.
-2. En el explorador de objetos, clic derecho en **Databases** > **Restore Database...**
-3. Seleccionar **Device** > buscar el archivo `database/backup/Albarran.bak` y hacer clic en **OK**.
-4. La base de datos `Albarran` quedará disponible de inmediato para Visual Studio (SSIS) y consultas locales.
+1. Abrir **SQL Server Management Studio (SSMS)** y restaurar `database/backup/Albarran.bak`.
+2. Ejecutar los scripts `02_crear_modelo_dimensional.sql` y `03_poblar_dim_tiempo.sql`.
+3. Abrir la solución SSIS en Visual Studio 2022: `etl/proyecto-ssis/Albarran_ETL.sln`.
+4. Verificar las conexiones OLE DB en `Albarran_OLTP.conmgr` y `Albarran_DW.conmgr`.
+5. Ejecutar los paquetes SSIS de dimensiones y hechos según la secuencia documentada en `etl/proyecto-ssis/README.md`.
+6. En SSMS, ejecutar `04_validacion_cuadratura_dw.sql` para comprobar que las 9 pruebas de cuadratura financiera y volumétrica resulten **`APROBADO [PASS]`**.
+7. Generar el backup final `database/backup/Albarran_DW.bak` ejecutando el comando de backup documentado.
 
 ---
 
-## Distribución de responsabilidades y aportes
+## Distribución de responsabilidades y aportes (Fase 1)
+
+| Integrante | Rol / Especialidad | Entregables y Aportes en Fase 1 |
+| :--- | :--- | :--- |
+| **Marcelo Mejías** (Paralelo 301) | Arquitectura DW & Modelado | Inicialización Docker, EDA y calidad de datos (#1), definición y formulación de 6 KPIs (#2), metodología Kimball en 4 pasos (#3), script DDL de `Albarran_DW` (#4), diagrama estrella y diccionario (#5), matriz STTM (#7), solución base SSIS (#8), script de cuadratura y validación contable (#14). |
+| **Mishas Silva** (Paralelo 300) | Desarrollo SQL & ETL | Script SQL y población de `Dim_Tiempo` (PR #18, #6), paquete SSIS `Dim_Cliente` (#9), elaboración de diapositivas y guión de exposición (#15). |
+| **Natalia Cárdenas** (Paralelo 301) | Desarrollo ETL SSIS | Configuración de paquetes SSIS en Visual Studio 2022: `Dim_Sucursal` (#10), `Dim_Empleado` (#11), `Dim_Producto` (#12) y `Fact_Ventas` (#13). |

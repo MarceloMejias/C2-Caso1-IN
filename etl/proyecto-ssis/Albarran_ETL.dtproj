@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ProductVersion>16.0.0000.0</ProductVersion>
+  <SchemaVersion>9.0</SchemaVersion>
+  <Database>
+    <Name>Albarran_ETL.database</Name>
+    <AppendedDependencies>
+      <DtprojProperty>
+        <Name>TargetServerVersion</Name>
+        <Value xsi:type="xsd:string">SQLServer2022</Value>
+      </DtprojProperty>
+    </AppendedDependencies>
+  </Database>
+  <ProjectConnectionManagers>
+    <ConnectionManager>
+      <Name>Albarran_OLTP.conmgr</Name>
+      <FullPath>Albarran_OLTP.conmgr</FullPath>
+    </ConnectionManager>
+    <ConnectionManager>
+      <Name>Albarran_DW.conmgr</Name>
+      <FullPath>Albarran_DW.conmgr</FullPath>
+    </ConnectionManager>
+  </ProjectConnectionManagers>
+  <Package>
+    <Name>00_Master_ETL.dtsx</Name>
+    <FullPath>00_Master_ETL.dtsx</FullPath>
+  </Package>
+  <Package>
+    <Name>01_Carga_Dim_Sucursal.dtsx</Name>
+    <FullPath>01_Carga_Dim_Sucursal.dtsx</FullPath>
+  </Package>
+  <Package>
+    <Name>02_Carga_Dim_Cliente.dtsx</Name>
+    <FullPath>02_Carga_Dim_Cliente.dtsx</FullPath>
+  </Package>
+  <Package>
+    <Name>03_Carga_Dim_Empleado.dtsx</Name>
+    <FullPath>03_Carga_Dim_Empleado.dtsx</FullPath>
+  </Package>
+  <Package>
+    <Name>04_Carga_Dim_Producto.dtsx</Name>
+    <FullPath>04_Carga_Dim_Producto.dtsx</FullPath>
+  </Package>
+  <Package>
+    <Name>05_Carga_Fact_Ventas.dtsx</Name>
+    <FullPath>05_Carga_Fact_Ventas.dtsx</FullPath>
+  </Package>
+  <Miscellaneous />
+  <Configurations>
+    <Configuration>
+      <Name>Development</Name>
+      <Options>
+        <OutputPath>bin\Development</OutputPath>
+        <ConnectionManagers />
+        <DeploymentModel>Project</DeploymentModel>
+        <ServerVersion>SQLServer2022</ServerVersion>
+      </Options>
+    </Configuration>
+  </Configurations>
+</Project>
