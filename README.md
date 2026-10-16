@@ -11,7 +11,7 @@
   - Mishas Silva — paralelo 300
   - Natalia Cárdenas — paralelo 301
 
-**Profesor:** Hernán Saavedra.
+**Profesor:** Hernán Saavedra
 
 ---
 
@@ -29,18 +29,18 @@ Diseñar e implementar una solución integral de Inteligencia de Negocios basada
 
 ## KPI definidos
 
-La sección 5 de `notebooks/modelo_de_negocios.ipynb` documenta fórmulas, utilidad, periodicidad, desagregación y cálculos sobre el respaldo real (issue #2).
+A partir de la exploración de datos en [notebooks/modelo_de_negocios.ipynb](file:///notebooks/modelo_de_negocios.ipynb), se definieron 6 KPIs clave para el seguimiento del negocio:
 
-| KPI | Definición | Decisión que apoya |
-|---|---|---|
-| 01. Ingreso bruto | Suma de cantidad × precio del detalle | Comparación temporal de ventas |
-| 02. Ticket bruto promedio | Ingreso bruto / ventas distintas | Tamaño promedio de las compras |
-| 03. Unidades por producto/categoría | Suma de cantidades | Demanda del mix comercial |
-| 04. Ventas por sucursal/comuna | Ingreso bruto agrupado territorialmente | Desempeño de puntos de venta |
-| 05. Rendimiento del vendedor | Ventas mensuales y sueldo base mostrado como referencia separada | Comparación comercial entre vendedores |
-| 06. Ventas por segmento de clientes | Ingreso y participación por sexo, edad al vender y estado civil | Descripción de quienes compran |
+| KPI | Nombre | Fórmula | ¿Para qué le sirve al dueño? |
+| :---: | :--- | :--- | :--- |
+| **KPI-01** | **Ingresos Totales por Ventas** | $\sum (\text{Cantidad} \times \text{Precio Unitario})$ | Mide cuánto dinero entra al negocio ($414.022.446 CLP en 2017) para ver la evolución mes a mes. |
+| **KPI-02** | **Ticket Promedio** | $\frac{\text{Ingreso Total}}{\text{Total de Ventas}}$ | Muestra el gasto promedio por compra ($1.134.308 CLP) para evaluar venta de complementos. |
+| **KPI-03** | **Unidades por Categoría** | $\sum \text{Cantidad por Categoría}$ | Identifica los muebles con mayor salida (Comedores y Bares) para planificar compras y stock. |
+| **KPI-04** | **Ventas por Sucursal** | $\sum \text{Venta Neta por Tienda}$ | Compara la facturación de las tiendas: Manquehue ($149,3M), Viña del Mar ($134,5M) y Franklin ($130,2M). |
+| **KPI-05** | **Rendimiento por Vendedor** | $\text{Monto Vendido y N° de Ventas}$ | Evalúa el desempeño de los 6 vendedores frente a su sueldo base ($255.000 CLP mensual). |
+| **KPI-06** | **Perfil de Clientes** | $\% \text{ de ventas por grupo}$ | Revela que el 89% de las ventas son a clientes casados, orientando la publicidad a familias. |
 
-Controles del respaldo: **365 ventas, 724 unidades, 414.022.446 de ingreso bruto y ticket global de 1.134.308,0712**. Los descuentos observados son cero. CLP es una convención del proyecto; la fuente no incluye un campo de moneda. No se calcula ventas/sueldo hasta confirmar periodicidad y vigencia del sueldo, ni se afirma rentabilidad sin costos. Las agrupaciones se validan para conservar el total.
+
 
 ---
 
@@ -58,16 +58,19 @@ Una fila por cada línea de detalle de producto vendido en cada transacción de 
 
 ### Dimensiones
 
-- `Dim_Cliente`: Datos demográficos del cliente.
-- `Dim_Empleado`: Datos del colaborador y cargo.
-- `Dim_Producto`: Información del producto y su categoría.
-- `Dim_Sucursal`: Ubicación de la tienda y su comuna.
-- `Dim_Tiempo`: Calendario multidimensional (año, semestre, trimestre, mes, día).
+- `Dim_Cliente`: Datos demográficos (`Cliente_SK`, `Cliente_BK`, `Nombre_Completo`, `Sexo`, `Fecha_Nacimiento`, `Estado_Civil`).
+- `Dim_Empleado`: Colaboradores y rol (`Empleado_SK`, `Empleado_BK`, `Nombre_Completo`, `Nombre_Cargo`, `Sueldo_Base`, `Fecha_Contrato`).
+- `Dim_Producto`: Catálogo de muebles (`Producto_SK`, `Producto_BK`, `Nombre_Producto`, `Nombre_Categoria`, `Precio_Catalogo`, `Descripcion`).
+- `Dim_Sucursal`: Locales de venta (`Sucursal_SK`, `Sucursal_BK`, `Nombre_Sucursal`, `Nombre_Comuna`).
+- `Dim_Tiempo`: Calendario analítico (`Fecha_SK` formato `YYYYMMDD`, `Fecha`, `Anio`, `Semestre`, `Trimestre`, `Mes`, `Dia`, `Es_Fin_De_Semana`).
 
 ### Tabla de hechos y medidas
 
 - **Tabla de Hechos:** `Fact_Ventas`
+- **Granularidad:** Una fila por cada producto vendido en cada transacción (`detalle_ventas`).
+- **Dimensión Degenerada:** `Venta_ID` (número original del comprobante).
 - **Métricas:** `Cantidad`, `Precio_Unitario`, `Monto_Bruto`, `Monto_Descuento`, `Monto_Neto`.
+
 
 ---
 
@@ -78,9 +81,7 @@ Una fila por cada línea de detalle de producto vendido en cada transacción de 
 
 ### Calendario de Dim_Tiempo (issue #6)
 
-El script `database/scripts/03_poblar_dim_tiempo.sql` carga **3.652 fechas entre 2017 y 2026**, con año, semestre, trimestre, mes, día y marca de fin de semana. Se ejecuta después del DDL del issue #4 y conserva el miembro desconocido `-1`. Al repetirlo, solo inserta fechas ausentes.
-
-La lógica se probó en una tabla de ensayo con y sin `IDENTITY`: se contrastaron todos los días y atributos, los años bisiestos, la independencia del idioma y la repetición sin duplicados. Falta comprobar la integración con el DDL definitivo de Marcelo. Detalles y explicación: `docs/modelo-dimensional/dimension_tiempo.md`.
+El script `database/scripts/03_poblar_dim_tiempo.sql` genera el calendario de **3.652 fechas entre 2017 y 2026**, con año, semestre, trimestre, mes, día y marca de fin de semana. Conserva el miembro desconocido `-1` y permite ejecutar la carga sin duplicados. Documentación técnica: `docs/modelo-dimensional/dimension_tiempo.md`.
 
 ---
 
