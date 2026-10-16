@@ -27,14 +27,18 @@ Diseñar e implementar una solución integral de Inteligencia de Negocios basada
 
 ## KPI definidos
 
-_(Sección en desarrollo en `notebooks/modelo_de_negocios.ipynb`)_
+La sección 5 de `notebooks/modelo_de_negocios.ipynb` documenta fórmulas, utilidad, periodicidad, desagregación y cálculos sobre el respaldo real (issue #2).
 
-- **KPI 1:** Ingresos Totales por Ventas ($ CLP).
-- **KPI 2:** Ticket Promedio de Venta.
-- **KPI 3:** Cantidad de Unidades Vendidas por Categoría / Producto.
-- **KPI 4:** Ventas Totales por Sucursal y Comuna.
-- **KPI 5:** Rendimiento y Productividad de la Fuerza de Ventas.
-- **KPI 6:** Segmentación Demográfica de Clientes (Género, Rango Etario, Estado Civil).
+| KPI | Definición | Decisión que apoya |
+|---|---|---|
+| 01. Ingreso bruto | Suma de cantidad × precio del detalle | Comparación temporal de ventas |
+| 02. Ticket bruto promedio | Ingreso bruto / ventas distintas | Tamaño promedio de las compras |
+| 03. Unidades por producto/categoría | Suma de cantidades | Demanda del mix comercial |
+| 04. Ventas por sucursal/comuna | Ingreso bruto agrupado territorialmente | Desempeño de puntos de venta |
+| 05. Rendimiento del vendedor | Ventas mensuales y sueldo base mostrado como referencia separada | Comparación comercial entre vendedores |
+| 06. Ventas por segmento de clientes | Ingreso y participación por sexo, edad al vender y estado civil | Descripción de quienes compran |
+
+Controles del respaldo: **365 ventas, 724 unidades, 414.022.446 de ingreso bruto y ticket global de 1.134.308,0712**. Los descuentos observados son cero. CLP es una convención del proyecto; la fuente no incluye un campo de moneda. No se calcula ventas/sueldo hasta confirmar periodicidad y vigencia del sueldo, ni se afirma rentabilidad sin costos. Las agrupaciones se validan para conservar el total.
 
 ---
 
