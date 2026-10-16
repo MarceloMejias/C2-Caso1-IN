@@ -85,6 +85,14 @@ El script `database/scripts/03_poblar_dim_tiempo.sql` genera el calendario de **
 
 ---
 
+### Carga de Dim_Empleado (issue #11)
+
+[Dim_Empleado.dtsx](etl/proyecto-ssis/Dim_Empleado.dtsx) implementa la transformación y carga de empleados. [Configuración y explicación](etl/proyecto-ssis/Dim_Empleado.md). Compilación SSISBuild y pruebas SQL correctas: 15 filas reales más el miembro desconocido, sin nuevas filas al repetir. [Evidencia](docs/evidencias/validacion_empleados.json).
+
+**Pendiente:** incorporación al proyecto compartido y ejecución real en SSIS Windows. Las cargas SQL de ensayo no sustituyen la ejecución del DTSX. Esta tarea pasa a Mishas según el reparto actualizado; la tabla de responsabilidades previa no refleja ese cambio.
+
+---
+
 ## Cubo OLAP - Fase 2
 
 _(Corresponde a la Fase 2 del certamen)_

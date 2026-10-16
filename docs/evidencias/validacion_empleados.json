@@ -1,0 +1,42 @@
+{
+  "prueba": "Dim_Empleado - consultas SQL, metadatos y estructura nativa",
+  "resultado": "OK",
+  "filas_reales": 15,
+  "miembros_desconocidos": 1,
+  "segunda_extraccion": 0,
+  "transformacion_python_vs_sql": "Coincide en todas las filas y atributos",
+  "claves_conservadas": true,
+  "discrepancia_detectada_y_revertida": true,
+  "metadata_origen": [
+    {
+      "name": "Empleado_BK",
+      "system_type_name": "int"
+    },
+    {
+      "name": "Nombre",
+      "system_type_name": "varchar(150)"
+    },
+    {
+      "name": "ApPaterno",
+      "system_type_name": "varchar(150)"
+    },
+    {
+      "name": "ApMaterno",
+      "system_type_name": "varchar(150)"
+    },
+    {
+      "name": "Nombre_Cargo",
+      "system_type_name": "varchar(100)"
+    },
+    {
+      "name": "Sueldo_Base",
+      "system_type_name": "numeric(12,2)"
+    },
+    {
+      "name": "Fecha_Contrato",
+      "system_type_name": "date"
+    }
+  ],
+  "compilacion_ssisbuild": "Correcta",
+  "ejecucion_ssis": "Pendiente en SSIS Windows; las cargas de ensayo se realizaron mediante SQL."
+}
