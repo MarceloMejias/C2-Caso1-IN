@@ -1,22 +1,52 @@
 # Environment & Secrets
 .env
+.env.*
 *.env.local
+!.env.example
 
-# Operating System
+# IDEs & Editors (evitar metadatos locales de VS Code, JetBrains, Vim, etc.)
+.vscode/
+.vscode/*
+.idea/
+*.swp
+*.swo
+*~
+
+# Operating System Metadata (macOS & Windows)
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Thumbs.db:encryptable
 Desktop.ini
+$RECYCLE.BIN/
 
-# Python / Jupyter
+# Python & Jupyter Caches
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
-venv/
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Herramientas de calidad y tipos (Astral, Pytest, Mypy)
+.ruff_cache/
+.ty_cache/
+.pytest_cache/
+.mypy_cache/
+.cache/
+
+# Entornos virtuales de Python
 .venv/
+venv/
+env/
 ENV/
+
+# Empaquetado y distribución de Python
 build/
 develop-eggs/
 dist/
@@ -32,15 +62,16 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-.ipynb_checkpoints
-*/.ipynb_checkpoints/*
 
-# Visual Studio & SSIS / SSAS (para compañeros en Windows)
+# Visual Studio, SSIS & SSAS (para compañeros en Windows)
 .vs/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
+*.dtproj.user
+*.database.user
+*.asdatabase.user
 bin/
 obj/
 Debug/
@@ -52,16 +83,16 @@ Release/
 *.sdf
 *.cache
 *.ilk
-*.aps
 *.log
 
-# Power BI temporales
+# Power BI temporales y plantillas
 *.tmp
 *.pbit
 
-# Base de datos: ignorar backups generados dinámicamente excepto el entregable original
+# Base de datos: ignorar backups generados dinámicamente excepto los entregables oficiales en database/backup/
 *.bak
 !database/backup/Albarran.bak
-!Albarran.bak
+!database/backup/Albarran_DW.bak
 database/data/
 docker_data/
+

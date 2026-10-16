@@ -16,3 +16,7 @@ plotly>=5.15.0
 jupyter>=1.0.0
 notebook>=7.0.0
 ipykernel>=6.25.0
+
+# Calidad de código, formateo y tipado estático (Astral)
+ruff>=0.17.0
+ty>=0.0.80
