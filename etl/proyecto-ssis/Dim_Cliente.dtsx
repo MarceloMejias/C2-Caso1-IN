@@ -1,0 +1,241 @@
+<?xml version='1.0' encoding='utf-8'?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" DTS:refId="Package" DTS:CreationName="Microsoft.Package" DTS:DTSID="{742DCA21-7702-44FD-B9CF-4851F946AF49}" DTS:ExecutableType="Microsoft.Package" DTS:ObjectName="Dim_Cliente" DTS:LastModifiedProductVersion="16.0.0.0" DTS:LocaleID="1033" DTS:ProtectionLevel="0" DTS:PackageType="5" DTS:VersionMajor="1" DTS:VersionBuild="1" DTS:VersionGUID="{A35F1F38-32A3-443D-BB65-D8D064D35551}" DTS:DelayValidation="True">
+  <DTS:Property DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:ConnectionManagers>
+    <DTS:ConnectionManager DTS:refId="Package.ConnectionManagers[Origen_Albarran]" DTS:CreationName="OLEDB" DTS:DTSID="{30F4B38A-F396-41A4-92B9-7B3F9210A0F9}" DTS:ObjectName="Origen_Albarran" DTS:DelayValidation="True">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager DTS:ConnectionString="Data Source=.;Initial Catalog=Albarran;Provider=MSOLEDBSQL;Integrated Security=SSPI;Auto Translate=False;Trust Server Certificate=True;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+    <DTS:ConnectionManager DTS:refId="Package.ConnectionManagers[Destino_Albarran_DW]" DTS:CreationName="OLEDB" DTS:DTSID="{5F517A3A-E678-45A7-A795-F657A04692CF}" DTS:ObjectName="Destino_Albarran_DW" DTS:DelayValidation="True">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager DTS:ConnectionString="Data Source=.;Initial Catalog=Albarran_DW;Provider=MSOLEDBSQL;Integrated Security=SSPI;Auto Translate=False;Trust Server Certificate=True;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+  </DTS:ConnectionManagers>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable DTS:refId="Package\01 Validar origen" DTS:CreationName="Microsoft.ExecuteSQLTask" DTS:DTSID="{2FB12AF4-4C29-4656-A345-F2E4848737A5}" DTS:ExecutableType="Microsoft.ExecuteSQLTask" DTS:ObjectName="01 Validar origen" DTS:DelayValidation="True" DTS:FailPackageOnFailure="True">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData SQLTask:Connection="{30F4B38A-F396-41A4-92B9-7B3F9210A0F9}" SQLTask:SqlStatementSource="IF EXISTS(SELECT cliente_id FROM dbo.clientes GROUP BY cliente_id HAVING COUNT(*)&gt;1)&#10; THROW 51000,'Cliente duplicado en origen.',1;&#10;IF EXISTS(SELECT 1 FROM dbo.clientes e WHERE e.cliente_id IS NULL OR e.cliente_id=-1&#10; OR NULLIF(LTRIM(RTRIM(e.nombre)),N'') IS NULL OR NULLIF(LTRIM(RTRIM(e.appaterno)),N'') IS NULL&#10; OR LEN(LTRIM(RTRIM(COALESCE(e.nombre,N'')))+N' '+LTRIM(RTRIM(COALESCE(e.appaterno,N'')))+CASE WHEN NULLIF(LTRIM(RTRIM(e.apmaterno)),N'') IS NULL THEN N'' ELSE N' '+LTRIM(RTRIM(e.apmaterno)) END)&gt;150 OR LEN(e.estado_civil)&gt;50)&#10; THROW 51000,'Cliente o textos fuera de los limites del destino.',1;" SQLTask:BypassPrepare="True" SQLTask:ResultType="ResultSetType_None" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable DTS:refId="Package\03 Cargar Dim_Cliente" DTS:CreationName="Microsoft.Pipeline" DTS:DTSID="{342B31EC-845A-4E8C-9A22-1C9877CDE1E5}" DTS:ExecutableType="Microsoft.Pipeline" DTS:ObjectName="03 Cargar Dim_Cliente" DTS:DelayValidation="True" DTS:FailPackageOnFailure="True">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline version="1">
+          <components>
+            <component refId="Package\03 Cargar Dim_Cliente\Origen" componentClassID="Microsoft.OLEDBSource" contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7" description="OLE DB Source" name="Origen" usesDispositions="true" version="7" validateExternalMetadata="False">
+              <properties>
+                <property dataType="System.Int32" description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out." name="CommandTimeout">0</property>
+                <property dataType="System.String" description="Specifies the name of the database object used to open a rowset." name="OpenRowset" />
+                <property dataType="System.String" description="Specifies the variable that contains the name of the database object used to open a rowset." name="OpenRowsetVariable" />
+                <property dataType="System.String" description="The SQL command to be executed." name="SqlCommand" UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT e.cliente_id AS Cliente_BK,CAST(e.nombre AS nvarchar(150)) Nombre,
+ CAST(e.appaterno AS nvarchar(150)) ApPaterno,CAST(e.apmaterno AS nvarchar(150)) ApMaterno,
+ CAST(e.sexo AS nvarchar(1)) Sexo_Origen,CAST(e.fecha_nacimiento AS date) Fecha_Nacimiento,
+ CAST(e.estado_civil AS nvarchar(50)) Estado_Civil
+FROM dbo.clientes e
+WHERE NOT EXISTS(SELECT 1 FROM Albarran_DW.dbo.Dim_Cliente d WHERE d.Cliente_BK=e.cliente_id);</property>
+                <property dataType="System.String" description="The variable that contains the SQL command to be executed." name="SqlCommandVariable" />
+                <property dataType="System.Int32" description="Specifies the column code page to use when code page information is unavailable from the data source." name="DefaultCodePage">1252</property>
+                <property dataType="System.Boolean" description="Forces the use of the DefaultCodePage property value when describing character data." name="AlwaysUseDefaultCodePage">false</property>
+                <property dataType="System.Int32" description="Specifies the mode used to access the database." name="AccessMode" typeConverter="AccessMode">2</property>
+                <property dataType="System.String" description="The mappings between the parameters in the SQL command and variables." name="ParameterMapping" />
+              </properties>
+              <connections>
+                <connection refId="Package\03 Cargar Dim_Cliente\Origen.Connections[OleDbConnection]" connectionManagerID="{30F4B38A-F396-41A4-92B9-7B3F9210A0F9}" connectionManagerRefId="Package.ConnectionManagers[Origen_Albarran]" name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output]" name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Cliente_BK]" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Cliente_BK]" name="Cliente_BK" dataType="i4" externalMetadataColumnId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].ExternalColumns[Cliente_BK]" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Nombre]" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Nombre]" name="Nombre" dataType="wstr" externalMetadataColumnId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].ExternalColumns[Nombre]" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" length="150" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[ApPaterno]" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[ApPaterno]" name="ApPaterno" dataType="wstr" externalMetadataColumnId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].ExternalColumns[ApPaterno]" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" length="150" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[ApMaterno]" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[ApMaterno]" name="ApMaterno" dataType="wstr" externalMetadataColumnId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].ExternalColumns[ApMaterno]" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" length="150" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Sexo_Origen]" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Sexo_Origen]" name="Sexo_Origen" dataType="wstr" externalMetadataColumnId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].ExternalColumns[Sexo_Origen]" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" length="1" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Fecha_Nacimiento]" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Fecha_Nacimiento]" name="Fecha_Nacimiento" dataType="dbDate" externalMetadataColumnId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].ExternalColumns[Fecha_Nacimiento]" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Estado_Civil]" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Estado_Civil]" name="Estado_Civil" dataType="wstr" externalMetadataColumnId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].ExternalColumns[Estado_Civil]" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" length="50" />
+                  </outputColumns>
+                  <externalMetadataColumns isUsed="True">
+                    <externalMetadataColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].ExternalColumns[Cliente_BK]" name="Cliente_BK" dataType="i4" />
+                    <externalMetadataColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].ExternalColumns[Nombre]" name="Nombre" dataType="wstr" length="150" />
+                    <externalMetadataColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].ExternalColumns[ApPaterno]" name="ApPaterno" dataType="wstr" length="150" />
+                    <externalMetadataColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].ExternalColumns[ApMaterno]" name="ApMaterno" dataType="wstr" length="150" />
+                    <externalMetadataColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].ExternalColumns[Sexo_Origen]" name="Sexo_Origen" dataType="wstr" length="1" />
+                    <externalMetadataColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].ExternalColumns[Fecha_Nacimiento]" name="Fecha_Nacimiento" dataType="dbDate" />
+                    <externalMetadataColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].ExternalColumns[Estado_Civil]" name="Estado_Civil" dataType="wstr" length="50" />
+                  </externalMetadataColumns>
+                </output>
+                <output refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output]" name="OLE DB Source Error Output" isErrorOut="true">
+                  <outputColumns>
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[ErrorCode]" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[ErrorCode]" name="ErrorCode" dataType="i4" specialFlags="1" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]" name="ErrorColumn" dataType="i4" specialFlags="2" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[Cliente_BK]" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[Cliente_BK]" name="Cliente_BK" dataType="i4" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[Nombre]" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[Nombre]" name="Nombre" dataType="wstr" length="150" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[ApPaterno]" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[ApPaterno]" name="ApPaterno" dataType="wstr" length="150" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[ApMaterno]" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[ApMaterno]" name="ApMaterno" dataType="wstr" length="150" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[Sexo_Origen]" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[Sexo_Origen]" name="Sexo_Origen" dataType="wstr" length="1" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[Fecha_Nacimiento]" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[Fecha_Nacimiento]" name="Fecha_Nacimiento" dataType="dbDate" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[Estado_Civil]" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Error Output].Columns[Estado_Civil]" name="Estado_Civil" dataType="wstr" length="50" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component refId="Package\03 Cargar Dim_Cliente\Normalizar atributos" name="Normalizar atributos" componentClassID="Microsoft.DerivedColumn" version="2" usesDispositions="true">
+              <inputs>
+                <input refId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Inputs[Derived Column Input]" name="Derived Column Input">
+                  <inputColumns>
+                    <inputColumn refId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Inputs[Derived Column Input].Columns[ApMaterno]" cachedName="ApMaterno" cachedDataType="wstr" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[ApMaterno]" cachedLength="150" />
+                    <inputColumn refId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Inputs[Derived Column Input].Columns[ApPaterno]" cachedName="ApPaterno" cachedDataType="wstr" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[ApPaterno]" cachedLength="150" />
+                    <inputColumn refId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Inputs[Derived Column Input].Columns[Estado_Civil]" cachedName="Estado_Civil" cachedDataType="wstr" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Estado_Civil]" cachedLength="50" />
+                    <inputColumn refId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Inputs[Derived Column Input].Columns[Nombre]" cachedName="Nombre" cachedDataType="wstr" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Nombre]" cachedLength="150" />
+                    <inputColumn refId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Inputs[Derived Column Input].Columns[Sexo_Origen]" cachedName="Sexo_Origen" cachedDataType="wstr" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Sexo_Origen]" cachedLength="1" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output refId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Output]" name="Derived Column Output" synchronousInputId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Inputs[Derived Column Input]" exclusionGroup="1">
+                  <outputColumns>
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Output].Columns[Nombre_Completo_Unicode]" lineageId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Output].Columns[Nombre_Completo_Unicode]" name="Nombre_Completo_Unicode" dataType="wstr" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" length="150">
+                      <properties>
+                        <property name="Expression" dataType="System.String" containsID="true">(DT_WSTR,150)(TRIM(#{Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Nombre]}) + " " + TRIM(#{Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[ApPaterno]}) + (ISNULL(#{Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[ApMaterno]}) ? "" : (LEN(TRIM(#{Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[ApMaterno]})) == 0 ? "" : " " + TRIM(#{Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[ApMaterno]}))))</property>
+                        <property name="FriendlyExpression" dataType="System.String">(DT_WSTR,150)(TRIM(Nombre) + " " + TRIM(ApPaterno) + (ISNULL(ApMaterno) ? "" : (LEN(TRIM(ApMaterno)) == 0 ? "" : " " + TRIM(ApMaterno))))</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Output].Columns[Sexo_Unicode]" lineageId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Output].Columns[Sexo_Unicode]" name="Sexo_Unicode" dataType="wstr" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" length="20">
+                      <properties>
+                        <property name="Expression" dataType="System.String" containsID="true">(DT_WSTR,20)(ISNULL(#{Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Sexo_Origen]}) ? "No Informado" : (UPPER(TRIM(#{Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Sexo_Origen]})) == "M" ? "Masculino" : (UPPER(TRIM(#{Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Sexo_Origen]})) == "F" ? "Femenino" : "No Informado")))</property>
+                        <property name="FriendlyExpression" dataType="System.String">(DT_WSTR,20)(ISNULL(Sexo_Origen) ? "No Informado" : (UPPER(TRIM(Sexo_Origen)) == "M" ? "Masculino" : (UPPER(TRIM(Sexo_Origen)) == "F" ? "Femenino" : "No Informado")))</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Output].Columns[Estado_Civil_Unicode]" lineageId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Output].Columns[Estado_Civil_Unicode]" name="Estado_Civil_Unicode" dataType="wstr" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" length="50">
+                      <properties>
+                        <property name="Expression" dataType="System.String" containsID="true">(DT_WSTR,50)(ISNULL(#{Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Estado_Civil]}) ? "No Informado" : (LEN(TRIM(#{Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Estado_Civil]})) == 0 ? "No Informado" : TRIM(#{Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Estado_Civil]})))</property>
+                        <property name="FriendlyExpression" dataType="System.String">(DT_WSTR,50)(ISNULL(Estado_Civil) ? "No Informado" : (LEN(TRIM(Estado_Civil)) == 0 ? "No Informado" : TRIM(Estado_Civil)))</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output refId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Error Output]" name="Derived Column Error Output" isErrorOut="true" synchronousInputId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Inputs[Derived Column Input]" exclusionGroup="1">
+                  <outputColumns>
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Error Output].Columns[ErrorCode]" lineageId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Error Output].Columns[ErrorCode]" name="ErrorCode" dataType="i4" specialFlags="1" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Error Output].Columns[ErrorColumn]" lineageId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Error Output].Columns[ErrorColumn]" name="ErrorColumn" dataType="i4" specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component refId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino" name="Convertir al DDL del destino" componentClassID="Microsoft.DataConvert" version="1" usesDispositions="true">
+              <inputs>
+                <input refId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Inputs[Data Conversion Input]" name="Data Conversion Input">
+                  <inputColumns>
+                    <inputColumn refId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Inputs[Data Conversion Input].Columns[Nombre_Completo_Unicode]" cachedName="Nombre_Completo_Unicode" cachedDataType="wstr" lineageId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Output].Columns[Nombre_Completo_Unicode]" cachedLength="150" />
+                    <inputColumn refId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Inputs[Data Conversion Input].Columns[Sexo_Unicode]" cachedName="Sexo_Unicode" cachedDataType="wstr" lineageId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Output].Columns[Sexo_Unicode]" cachedLength="20" />
+                    <inputColumn refId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Inputs[Data Conversion Input].Columns[Estado_Civil_Unicode]" cachedName="Estado_Civil_Unicode" cachedDataType="wstr" lineageId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Output].Columns[Estado_Civil_Unicode]" cachedLength="50" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output refId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Outputs[Data Conversion Output]" name="Data Conversion Output" synchronousInputId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Inputs[Data Conversion Input]" exclusionGroup="1">
+                  <outputColumns>
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Outputs[Data Conversion Output].Columns[Nombre_Completo]" lineageId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Outputs[Data Conversion Output].Columns[Nombre_Completo]" name="Nombre_Completo" dataType="str" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" errorOrTruncationOperation="Conversion" length="150" codePage="1252">
+                      <properties>
+                        <property name="SourceInputColumnLineageID" dataType="System.Int32" containsID="true">#{Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Output].Columns[Nombre_Completo_Unicode]}</property>
+                        <property name="FastParse" dataType="System.Boolean">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Outputs[Data Conversion Output].Columns[Sexo]" lineageId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Outputs[Data Conversion Output].Columns[Sexo]" name="Sexo" dataType="str" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" errorOrTruncationOperation="Conversion" length="20" codePage="1252">
+                      <properties>
+                        <property name="SourceInputColumnLineageID" dataType="System.Int32" containsID="true">#{Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Output].Columns[Sexo_Unicode]}</property>
+                        <property name="FastParse" dataType="System.Boolean">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Outputs[Data Conversion Output].Columns[Estado_Civil]" lineageId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Outputs[Data Conversion Output].Columns[Estado_Civil]" name="Estado_Civil" dataType="str" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" errorOrTruncationOperation="Conversion" length="50" codePage="1252">
+                      <properties>
+                        <property name="SourceInputColumnLineageID" dataType="System.Int32" containsID="true">#{Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Output].Columns[Estado_Civil_Unicode]}</property>
+                        <property name="FastParse" dataType="System.Boolean">false</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output refId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Outputs[Data Conversion Error Output]" name="Data Conversion Error Output" isErrorOut="true" synchronousInputId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Inputs[Data Conversion Input]" exclusionGroup="1">
+                  <outputColumns>
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Outputs[Data Conversion Error Output].Columns[ErrorCode]" lineageId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Outputs[Data Conversion Error Output].Columns[ErrorCode]" name="ErrorCode" dataType="i4" specialFlags="1" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Outputs[Data Conversion Error Output].Columns[ErrorColumn]" lineageId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Outputs[Data Conversion Error Output].Columns[ErrorColumn]" name="ErrorColumn" dataType="i4" specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component refId="Package\03 Cargar Dim_Cliente\Destino" componentClassID="Microsoft.OLEDBDestination" contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4" description="OLE DB Destination" name="Destino" usesDispositions="true" version="4" validateExternalMetadata="False">
+              <properties>
+                <property dataType="System.Int32" description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out." name="CommandTimeout">0</property>
+                <property dataType="System.String" description="Specifies the name of the database object used to open a rowset." name="OpenRowset">[dbo].[Dim_Cliente]</property>
+                <property dataType="System.String" description="Specifies the variable that contains the name of the database object used to open a rowset." name="OpenRowsetVariable" />
+                <property dataType="System.String" description="The SQL command to be executed." name="SqlCommand" UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor" />
+                <property dataType="System.Int32" description="Specifies the column code page to use when code page information is unavailable from the data source." name="DefaultCodePage">1252</property>
+                <property dataType="System.Boolean" description="Forces the use of the DefaultCodePage property value when describing character data." name="AlwaysUseDefaultCodePage">false</property>
+                <property dataType="System.Int32" description="Specifies the mode used to access the database." name="AccessMode" typeConverter="AccessMode">3</property>
+                <property dataType="System.Boolean" description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on." name="FastLoadKeepIdentity">false</property>
+                <property dataType="System.Boolean" description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on." name="FastLoadKeepNulls">false</property>
+                <property dataType="System.String" description="Specifies options to be used with fast load.  Applies only if fast load is turned on." name="FastLoadOptions">CHECK_CONSTRAINTS</property>
+                <property dataType="System.Int32" description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on." name="FastLoadMaxInsertCommitSize">0</property>
+              </properties>
+              <connections>
+                <connection refId="Package\03 Cargar Dim_Cliente\Destino.Connections[OleDbConnection]" connectionManagerID="{5F517A3A-E678-45A7-A795-F657A04692CF}" connectionManagerRefId="Package.ConnectionManagers[Destino_Albarran_DW]" name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input refId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input]" name="OLE DB Destination Input" errorOrTruncationOperation="Insert" errorRowDisposition="FailComponent" hasSideEffects="true">
+                  <inputColumns>
+                    <inputColumn refId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input].Columns[Cliente_BK]" cachedName="Cliente_BK" cachedDataType="i4" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Cliente_BK]" externalMetadataColumnId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input].ExternalColumns[Cliente_BK]" />
+                    <inputColumn refId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input].Columns[Nombre_Completo]" cachedName="Nombre_Completo" cachedDataType="str" lineageId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Outputs[Data Conversion Output].Columns[Nombre_Completo]" externalMetadataColumnId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input].ExternalColumns[Nombre_Completo]" cachedLength="150" cachedCodepage="1252" />
+                    <inputColumn refId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input].Columns[Sexo]" cachedName="Sexo" cachedDataType="str" lineageId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Outputs[Data Conversion Output].Columns[Sexo]" externalMetadataColumnId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input].ExternalColumns[Sexo]" cachedLength="20" cachedCodepage="1252" />
+                    <inputColumn refId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input].Columns[Fecha_Nacimiento]" cachedName="Fecha_Nacimiento" cachedDataType="dbDate" lineageId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output].Columns[Fecha_Nacimiento]" externalMetadataColumnId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input].ExternalColumns[Fecha_Nacimiento]" />
+                    <inputColumn refId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input].Columns[Estado_Civil]" cachedName="Estado_Civil" cachedDataType="str" lineageId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Outputs[Data Conversion Output].Columns[Estado_Civil]" externalMetadataColumnId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input].ExternalColumns[Estado_Civil]" cachedLength="50" cachedCodepage="1252" />
+                  </inputColumns>
+                  <externalMetadataColumns isUsed="True">
+                    <externalMetadataColumn refId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input].ExternalColumns[Cliente_BK]" name="Cliente_BK" dataType="i4" />
+                    <externalMetadataColumn refId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input].ExternalColumns[Nombre_Completo]" name="Nombre_Completo" dataType="str" length="150" codePage="1252" />
+                    <externalMetadataColumn refId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input].ExternalColumns[Sexo]" name="Sexo" dataType="str" length="20" codePage="1252" />
+                    <externalMetadataColumn refId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input].ExternalColumns[Fecha_Nacimiento]" name="Fecha_Nacimiento" dataType="dbDate" />
+                    <externalMetadataColumn refId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input].ExternalColumns[Estado_Civil]" name="Estado_Civil" dataType="str" length="50" codePage="1252" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output refId="Package\03 Cargar Dim_Cliente\Destino.Outputs[OLE DB Destination Error Output]" name="OLE DB Destination Error Output" isErrorOut="true" synchronousInputId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input]" exclusionGroup="1">
+                  <outputColumns>
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Destino.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]" lineageId="Package\03 Cargar Dim_Cliente\Destino.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]" name="ErrorCode" dataType="i4" specialFlags="1" />
+                    <outputColumn refId="Package\03 Cargar Dim_Cliente\Destino.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]" lineageId="Package\03 Cargar Dim_Cliente\Destino.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]" name="ErrorColumn" dataType="i4" specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path refId="Package\03 Cargar Dim_Cliente.Paths[Flujo 0]" name="Flujo 0" startId="Package\03 Cargar Dim_Cliente\Origen.Outputs[OLE DB Source Output]" endId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Inputs[Derived Column Input]" />
+            <path refId="Package\03 Cargar Dim_Cliente.Paths[Flujo 1]" name="Flujo 1" startId="Package\03 Cargar Dim_Cliente\Normalizar atributos.Outputs[Derived Column Output]" endId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Inputs[Data Conversion Input]" />
+            <path refId="Package\03 Cargar Dim_Cliente.Paths[Flujo 2]" name="Flujo 2" startId="Package\03 Cargar Dim_Cliente\Convertir al DDL del destino.Outputs[Data Conversion Output]" endId="Package\03 Cargar Dim_Cliente\Destino.Inputs[OLE DB Destination Input]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable DTS:refId="Package\04 Validar resultado" DTS:CreationName="Microsoft.ExecuteSQLTask" DTS:DTSID="{65A6664A-F35A-4CC6-8BCC-C8FD1532F535}" DTS:ExecutableType="Microsoft.ExecuteSQLTask" DTS:ObjectName="04 Validar resultado" DTS:DelayValidation="True" DTS:FailPackageOnFailure="True">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData SQLTask:Connection="{5F517A3A-E678-45A7-A795-F657A04692CF}" SQLTask:SqlStatementSource="IF NOT EXISTS(SELECT 1 FROM dbo.Dim_Cliente WHERE Cliente_SK=-1 AND Cliente_BK=-1)&#10; THROW 51000,'Falta el miembro desconocido -1.',1;&#10;IF EXISTS(SELECT Cliente_BK FROM dbo.Dim_Cliente GROUP BY Cliente_BK HAVING COUNT(*)&gt;1)&#10; THROW 51000,'Claves de negocio duplicadas en destino.',1;&#10;IF EXISTS(SELECT e.cliente_id,CAST(LTRIM(RTRIM(COALESCE(e.nombre,N'')))+N' '+LTRIM(RTRIM(COALESCE(e.appaterno,N'')))+CASE WHEN NULLIF(LTRIM(RTRIM(e.apmaterno)),N'') IS NULL THEN N'' ELSE N' '+LTRIM(RTRIM(e.apmaterno)) END AS varchar(150)) COLLATE DATABASE_DEFAULT,&#10; CAST(CASE WHEN UPPER(LTRIM(RTRIM(e.sexo)))='M' THEN 'Masculino' WHEN UPPER(LTRIM(RTRIM(e.sexo)))='F' THEN 'Femenino' ELSE 'No Informado' END AS varchar(20)) COLLATE DATABASE_DEFAULT,&#10; CAST(e.fecha_nacimiento AS date),CAST(COALESCE(NULLIF(LTRIM(RTRIM(e.estado_civil)),N''),N'No Informado') AS varchar(50)) COLLATE DATABASE_DEFAULT&#10; FROM Albarran.dbo.clientes e&#10; EXCEPT SELECT Cliente_BK,Nombre_Completo COLLATE DATABASE_DEFAULT,Sexo COLLATE DATABASE_DEFAULT,Fecha_Nacimiento,Estado_Civil COLLATE DATABASE_DEFAULT FROM dbo.Dim_Cliente WHERE Cliente_SK&lt;&gt;-1) OR EXISTS(SELECT Cliente_BK,Nombre_Completo COLLATE DATABASE_DEFAULT,Sexo COLLATE DATABASE_DEFAULT,Fecha_Nacimiento,Estado_Civil COLLATE DATABASE_DEFAULT FROM dbo.Dim_Cliente WHERE Cliente_SK&lt;&gt;-1&#10; EXCEPT SELECT e.cliente_id,CAST(LTRIM(RTRIM(COALESCE(e.nombre,N'')))+N' '+LTRIM(RTRIM(COALESCE(e.appaterno,N'')))+CASE WHEN NULLIF(LTRIM(RTRIM(e.apmaterno)),N'') IS NULL THEN N'' ELSE N' '+LTRIM(RTRIM(e.apmaterno)) END AS varchar(150)) COLLATE DATABASE_DEFAULT,&#10; CAST(CASE WHEN UPPER(LTRIM(RTRIM(e.sexo)))='M' THEN 'Masculino' WHEN UPPER(LTRIM(RTRIM(e.sexo)))='F' THEN 'Femenino' ELSE 'No Informado' END AS varchar(20)) COLLATE DATABASE_DEFAULT,&#10; CAST(e.fecha_nacimiento AS date),CAST(COALESCE(NULLIF(LTRIM(RTRIM(e.estado_civil)),N''),N'No Informado') AS varchar(50)) COLLATE DATABASE_DEFAULT&#10; FROM Albarran.dbo.clientes e)&#10; THROW 51000,'La dimension no coincide con la transformacion del origen.',1;" SQLTask:BypassPrepare="True" SQLTask:ResultType="ResultSetType_None" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint DTS:refId="Package.PrecedenceConstraints[Exito0]" DTS:DTSID="{A5051448-9C3C-4701-9602-30EDD0AF2EA9}" DTS:From="Package\01 Validar origen" DTS:To="Package\03 Cargar Dim_Cliente" DTS:LogicalAnd="True" DTS:ObjectName="Exito0" DTS:Value="0" />
+    <DTS:PrecedenceConstraint DTS:refId="Package.PrecedenceConstraints[Exito1]" DTS:DTSID="{8BA4E7D4-94A7-492B-A999-429BBDF8D99A}" DTS:From="Package\03 Cargar Dim_Cliente" DTS:To="Package\04 Validar resultado" DTS:LogicalAnd="True" DTS:ObjectName="Exito1" DTS:Value="0" />
+  </DTS:PrecedenceConstraints>
+</DTS:Executable>
