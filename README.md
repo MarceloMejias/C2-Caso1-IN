@@ -85,6 +85,16 @@ El script `database/scripts/03_poblar_dim_tiempo.sql` genera el calendario de **
 
 ---
 
+### Carga de Dim_Producto (issue #12)
+
+[Dim_Producto.dtsx](etl/proyecto-ssis/Dim_Producto.dtsx) une productos con categorías y utiliza Derived Column para reemplazar descripciones nulas por `Sin descripción`. Carga claves de negocio ausentes, conserva el miembro desconocido y valida el resultado. [Configuración y explicación del paquete](etl/proyecto-ssis/Dim_Producto.md).
+
+Verificado: compilación SSISBuild y pruebas SQL sobre el respaldo y el DDL del proyecto; 20 productos con sus 20 descripciones imputadas, miembro desconocido conservado y segunda extracción sin filas nuevas. [Evidencia SQL](docs/evidencias/validacion_productos.json).
+
+**Pendiente:** agregar el paquete al proyecto del #8 y ejecutarlo en SSIS Windows con evidencia visual. Las pruebas SQL y la compilación no sustituyen esa ejecución.
+
+---
+
 ## Cubo OLAP - Fase 2
 
 _(Corresponde a la Fase 2 del certamen)_
