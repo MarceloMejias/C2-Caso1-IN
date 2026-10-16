@@ -85,6 +85,17 @@ El script `database/scripts/03_poblar_dim_tiempo.sql` genera el calendario de **
 
 ---
 
+### Paquetes de dimensiones (issues #9–#12)
+
+| Issue | Paquete | Filas reales verificadas | Guía |
+|---|---|---:|---|
+| #9 | Dim_Sucursal.dtsx | 3 | [Sucursal](etl/proyecto-ssis/Dim_Sucursal.md) |
+| #10 | Dim_Cliente.dtsx | 20 | [Cliente](etl/proyecto-ssis/Dim_Cliente.md) |
+| #11 | Dim_Empleado.dtsx | 15 | [Empleado](etl/proyecto-ssis/Dim_Empleado.md) |
+| #12 | Dim_Producto.dtsx | 20 | [Producto](etl/proyecto-ssis/Dim_Producto.md) |
+
+Todos conservan el miembro desconocido adicional -1 y extraen cero filas al repetir sobre la misma fuente. Clientes transforma nombres y sexo con textos Unicode y convierte al VARCHAR del DDL; empleados une cargos y normaliza nombres; productos sustituye las 20 descripciones nulas por Sin descripción. Las guías incluyen conexiones, consultas y evidencias SQL. La ejecución real en SSIS Windows sigue pendiente.
+
 ### Carga de Fact_Ventas e integración SSIS (issue #13)
 
 [Fact_Ventas.dtsx](etl/proyecto-ssis/Fact_Ventas.dtsx) resuelve las cinco claves dimensionales con Lookup, asigna el miembro -1 cuando no encuentra coincidencias y calcula bruto, descuento y neto mediante Derived Column. [Configuración, dependencias y explicación](etl/proyecto-ssis/Fact_Ventas.md).
