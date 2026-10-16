@@ -1,0 +1,35 @@
+{
+  "prueba": "Consultas SQL y estructura del paquete Dim_Producto",
+  "resultado": "OK",
+  "productos_reales": 20,
+  "descripciones_nulas_origen": 20,
+  "descripciones_imputadas": 20,
+  "miembro_desconocido": 1,
+  "segunda_extraccion": 0,
+  "claves_sustitutas_conservadas": true,
+  "discrepancia_detectada_y_revertida": true,
+  "metadata_sql": [
+    {
+      "name": "Producto_BK",
+      "system_type_name": "int"
+    },
+    {
+      "name": "Nombre_Producto",
+      "system_type_name": "varchar(100)"
+    },
+    {
+      "name": "Nombre_Categoria",
+      "system_type_name": "varchar(100)"
+    },
+    {
+      "name": "Precio_Catalogo",
+      "system_type_name": "numeric(12,2)"
+    },
+    {
+      "name": "Descripcion",
+      "system_type_name": "varchar(255)"
+    }
+  ],
+  "compilacion_ssisbuild": "Correcta",
+  "ejecucion_ssis": "Pendiente de runtime Windows; la carga de prueba se realizó mediante SQL, no ejecutando el DTSX."
+}
