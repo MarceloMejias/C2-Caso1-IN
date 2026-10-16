@@ -85,6 +85,16 @@ El script `database/scripts/03_poblar_dim_tiempo.sql` genera el calendario de **
 
 ---
 
+### Carga de Fact_Ventas e integración SSIS (issue #13)
+
+[Fact_Ventas.dtsx](etl/proyecto-ssis/Fact_Ventas.dtsx) resuelve las cinco claves dimensionales con Lookup, asigna el miembro -1 cuando no encuentra coincidencias y calcula bruto, descuento y neto mediante Derived Column. [Configuración, dependencias y explicación](etl/proyecto-ssis/Fact_Ventas.md).
+
+El proyecto SSIS registra los nombres reales de los cinco paquetes. Integrar primero los PR de #9–#12 y después #13. La copia conjunta de integración compila para SQL Server 2022; la carga SQL equivalente de ensayo produce 365 ventas, 724 unidades y 414.022.446 de bruto/neto, sin nuevas filas al repetir. Las nueve pruebas SQL del #14 pasan en ese ensayo. Evidencias en `docs/evidencias/validacion_ventas.json`, `compilacion_proyecto_ssis.json` y `cuadratura_sql_ensayo.json`.
+
+**Pendiente:** ejecución real de los cinco paquetes en SSIS Windows, capturas de resultados y respaldo final del grupo. Las cargas SQL de ensayo y la compilación no sustituyen esa ejecución.
+
+---
+
 ## Cubo OLAP - Fase 2
 
 _(Corresponde a la Fase 2 del certamen)_
@@ -216,5 +226,5 @@ El script `restore.sh` está diseñado exclusivamente para este entorno:
 | Integrante | Rol / Especialidad | Entregables y Aportes en Fase 1 |
 | :--- | :--- | :--- |
 | **Marcelo Mejías** (Paralelo 301) | Arquitectura DW & Modelado | Inicialización Docker, EDA y calidad de datos (#1), definición y formulación de 6 KPIs (#2), metodología Kimball en 4 pasos (#3), script DDL de `Albarran_DW` (#4), diagrama estrella y diccionario (#5), matriz STTM (#7), solución base SSIS (#8), script de cuadratura y validación contable (#14). |
-| **Mishas Silva** (Paralelo 300) | Desarrollo SQL & ETL | Script SQL y población de `Dim_Tiempo` (PR #18, #6), paquete SSIS `Dim_Cliente` (#9), elaboración de diapositivas y guión de exposición (#15). |
-| **Natalia Cárdenas** (Paralelo 301) | Desarrollo ETL SSIS | Configuración de paquetes SSIS en Visual Studio 2022: `Dim_Sucursal` (#10), `Dim_Empleado` (#11), `Dim_Producto` (#12) y `Fact_Ventas` (#13). |
+| **Mishas Silva** (Paralelo 300) | Desarrollo SQL & ETL | Script SQL y población de `Dim_Tiempo` (PR #18, #6), definición y controles KPI (#2), paquetes SSIS `Dim_Sucursal` (#9), `Dim_Cliente` (#10), `Dim_Empleado` (#11), `Dim_Producto` (#12) y `Fact_Ventas` (#13), con ejecución en Windows pendiente. Presentación (#15) pospuesta. |
+| **Natalia Cárdenas** (Paralelo 301) | Desarrollo ETL SSIS | El #10 fue reasignado a Mishas. Aportes restantes por registrar con el grupo. |

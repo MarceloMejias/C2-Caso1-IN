@@ -1,0 +1,83 @@
+{
+  "prueba": "Fact_Ventas - carga SQL equivalente y estructura SSIS nativa",
+  "resultado": "OK",
+  "totales": {
+    "filas": 365,
+    "ventas": 365,
+    "unidades": 724,
+    "bruto": "414022446.00",
+    "descuento": "0.00",
+    "neto": "414022446.00"
+  },
+  "segunda_extraccion": 0,
+  "claves_sustitutas_conservadas": true,
+  "carga_parcial_y_monto_alterado_detectados": true,
+  "fallback_sql_y_python_por_dimension": [
+    {
+      "dimension": "Dim_Cliente",
+      "filas_asignadas_a_miembro_desconocido": 16
+    },
+    {
+      "dimension": "Dim_Empleado",
+      "filas_asignadas_a_miembro_desconocido": 60
+    },
+    {
+      "dimension": "Dim_Producto",
+      "filas_asignadas_a_miembro_desconocido": 27
+    },
+    {
+      "dimension": "Dim_Sucursal",
+      "filas_asignadas_a_miembro_desconocido": 129
+    },
+    {
+      "dimension": "Dim_Tiempo",
+      "filas_asignadas_a_miembro_desconocido": 1
+    }
+  ],
+  "prueba_descuento_no_cero": {
+    "bruto": "300.15",
+    "descuento": "30.02"
+  },
+  "metadatos_origen": [
+    {
+      "name": "Venta_ID",
+      "system_type_name": "int"
+    },
+    {
+      "name": "Cliente_BK",
+      "system_type_name": "int"
+    },
+    {
+      "name": "Empleado_BK",
+      "system_type_name": "int"
+    },
+    {
+      "name": "Producto_BK",
+      "system_type_name": "int"
+    },
+    {
+      "name": "Sucursal_BK",
+      "system_type_name": "int"
+    },
+    {
+      "name": "Fecha_BK",
+      "system_type_name": "int"
+    },
+    {
+      "name": "Cantidad",
+      "system_type_name": "int"
+    },
+    {
+      "name": "Precio_Unitario",
+      "system_type_name": "numeric(12,2)"
+    },
+    {
+      "name": "Porcentaje_Descuento",
+      "system_type_name": "numeric(5,4)"
+    }
+  ],
+  "lookups_nativos": 5,
+  "derived_column_nativos": 4,
+  "compilacion_ssisbuild": "Correcta",
+  "ejecucion_ssis": "Pendiente en runtime SSIS Windows; no se ejecutó el DTSX. Se cargaron las dimensiones y ventas mediante SQL en una instancia de ensayo."
+}
