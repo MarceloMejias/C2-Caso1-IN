@@ -226,5 +226,7 @@ El script `restore.sh` está diseñado exclusivamente para este entorno:
 | Integrante | Rol / Especialidad | Entregables y Aportes en Fase 1 |
 | :--- | :--- | :--- |
 | **Marcelo Mejías** (Paralelo 301) | Arquitectura DW & Modelado | Inicialización Docker, EDA y calidad de datos (#1), definición y formulación de 6 KPIs (#2), metodología Kimball en 4 pasos (#3), script DDL de `Albarran_DW` (#4), diagrama estrella y diccionario (#5), matriz STTM (#7), solución base SSIS (#8), script de cuadratura y validación contable (#14). |
-| **Mishas Silva** (Paralelo 300) | Desarrollo SQL & ETL | Script SQL y población de `Dim_Tiempo` (PR #18, #6), paquete SSIS `Dim_Cliente` (#9), elaboración de diapositivas y guión de exposición (#15). |
-| **Natalia Cárdenas** (Paralelo 301) | Desarrollo ETL SSIS | Configuración de paquetes SSIS en Visual Studio 2022: `Dim_Sucursal` (#10), `Dim_Empleado` (#11), `Dim_Producto` (#12) y `Fact_Ventas` (#13). |
+| **Mishas Silva** (Paralelo 300) | Desarrollo SQL & ETL | Script SQL y población de `Dim_Tiempo` (PR #18, #6), paquete SSIS `Dim_Sucursal` (#9) y paquete `Dim_Producto` con tratamiento de nulos (#12); ejecución SSIS pendiente. Presentación (#15) pospuesta. |
+| **Natalia Cárdenas** (Paralelo 301) | Desarrollo ETL SSIS | Paquete SSIS `Dim_Cliente` (#10), según la distribución acordada. |
+
+Los paquetes `Dim_Empleado` (#11) y `Fact_Ventas` (#13) aún requieren asignación según el último reparto confirmado. Las tareas #9 y #12 incluyen archivos y pruebas parciales; deben ejecutarse en SSIS Windows antes de cerrarse.

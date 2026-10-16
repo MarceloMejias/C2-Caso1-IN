@@ -5,7 +5,7 @@ El paquete `Dim_Producto.dtsx` carga productos y categorías en el modelo del is
 ## Incorporación al proyecto compartido
 
 1. Abrir la solución del issue #8 en Visual Studio con la extensión SSIS.
-2. En **SSIS Packages > Add Existing Package > File System**, agregar `Dim_Producto.dtsx`. Guardar el proyecto para que registre el paquete.
+2. En **SSIS Packages > Add Existing Package > File System**, agregar `Dim_Producto.dtsx`. Si aparece la referencia prevista `04_Carga_Dim_Producto.dtsx`, quitar solo esa referencia al archivo ausente antes de agregar el paquete real. Guardar el proyecto para que registre el paquete.
 3. Configurar y probar los administradores locales del paquete: `Origen_Albarran` y `Destino_Albarran_DW`. Ambos usan `Data Source=.` y autenticación integrada como ejemplo; cambiar servidor, puerto y autenticación según el entorno del grupo. No guardar contraseñas en Git.
 4. Si se usa OLE DB Driver 19, seleccionar `MSOLEDBSQL19` en el editor de conexión. El ejemplo usa `MSOLEDBSQL`.
 5. Ejecutar el paquete con las bases `Albarran` y `Albarran_DW` en la misma instancia y el DDL del issue #4 ya aplicado. El usuario de conexión requiere leer ambas bases e insertar en el destino.
