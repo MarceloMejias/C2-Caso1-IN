@@ -27,5 +27,7 @@
       "sha256": "997886df80e9ad788b7ccc1881c0d5af803d839b05f0dd227450d35e26be6479"
     }
   ],
-  "ejecucion_ssis": "Pendiente en Windows"
+  "ejecucion_ssis": "Pendiente en Windows",
+  "integracion_git": "Las cinco ramas feature se combinaron sin conflictos mediante merge-tree, sin modificar main. El proyecto extraído del resultado se compiló correctamente.",
+  "comprobaciones_estructura": "Referencias de los cinco paquetes presentes; refId únicos; lineageId de entradas y extremos de paths existentes."
 }
