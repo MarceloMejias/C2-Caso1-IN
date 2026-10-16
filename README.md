@@ -76,6 +76,12 @@ Una fila por cada línea de detalle de producto vendido en cada transacción de 
 - Herramienta: Visual Studio + SQL Server Integration Services (SSIS).
 - Ubicación del proyecto: `etl/proyecto-ssis/`
 
+### Calendario de Dim_Tiempo (issue #6)
+
+El script `database/scripts/03_poblar_dim_tiempo.sql` carga **3.652 fechas entre 2017 y 2026**, con año, semestre, trimestre, mes, día y marca de fin de semana. Se ejecuta después del DDL del issue #4 y conserva el miembro desconocido `-1`. Al repetirlo, solo inserta fechas ausentes.
+
+La lógica se probó en una tabla de ensayo con y sin `IDENTITY`: se contrastaron todos los días y atributos, los años bisiestos, la independencia del idioma y la repetición sin duplicados. Falta comprobar la integración con el DDL definitivo de Marcelo. Detalles y explicación: `docs/modelo-dimensional/dimension_tiempo.md`.
+
 ---
 
 ## Cubo OLAP - Fase 2
