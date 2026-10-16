@@ -26,8 +26,8 @@
     <FullPath>00_Master_ETL.dtsx</FullPath>
   </Package>
   <Package>
-    <Name>01_Carga_Dim_Sucursal.dtsx</Name>
-    <FullPath>01_Carga_Dim_Sucursal.dtsx</FullPath>
+    <Name>Dim_Sucursal.dtsx</Name>
+    <FullPath>Dim_Sucursal.dtsx</FullPath>
   </Package>
   <Package>
     <Name>02_Carga_Dim_Cliente.dtsx</Name>
@@ -38,8 +38,8 @@
     <FullPath>03_Carga_Dim_Empleado.dtsx</FullPath>
   </Package>
   <Package>
-    <Name>04_Carga_Dim_Producto.dtsx</Name>
-    <FullPath>04_Carga_Dim_Producto.dtsx</FullPath>
+    <Name>Dim_Producto.dtsx</Name>
+    <FullPath>Dim_Producto.dtsx</FullPath>
   </Package>
   <Package>
     <Name>05_Carga_Fact_Ventas.dtsx</Name>
