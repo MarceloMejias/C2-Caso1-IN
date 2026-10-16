@@ -229,13 +229,3 @@ El script `restore.sh` está diseñado exclusivamente para este entorno:
 5. Ejecutar los paquetes SSIS de dimensiones y hechos según la secuencia documentada en `etl/proyecto-ssis/README.md`.
 6. En SSMS, ejecutar `04_validacion_cuadratura_dw.sql` para comprobar que las 9 pruebas de cuadratura financiera y volumétrica resulten **`APROBADO [PASS]`**.
 7. Generar el backup final `database/backup/Albarran_DW.bak` ejecutando el comando de backup documentado.
-
----
-
-## Distribución de responsabilidades y aportes (Fase 1)
-
-| Integrante | Rol / Especialidad | Entregables y Aportes en Fase 1 |
-| :--- | :--- | :--- |
-| **Marcelo Mejías** (Paralelo 301) | Arquitectura DW & Modelado | Inicialización Docker, EDA y calidad de datos (#1), definición y formulación de 6 KPIs (#2), metodología Kimball en 4 pasos (#3), script DDL de `Albarran_DW` (#4), diagrama estrella y diccionario (#5), matriz STTM (#7), solución base SSIS (#8), script de cuadratura y validación contable (#14). |
-| **Mishas Silva** (Paralelo 300) | Desarrollo SQL & ETL | Script SQL y población de `Dim_Tiempo` (PR #18, #6), definición y controles KPI (#2), paquetes SSIS `Dim_Sucursal` (#9), `Dim_Cliente` (#10), `Dim_Empleado` (#11), `Dim_Producto` (#12) y `Fact_Ventas` (#13), con ejecución en Windows pendiente. Presentación (#15) pospuesta. |
-| **Natalia Cárdenas** (Paralelo 301) | Desarrollo ETL SSIS | El #10 fue reasignado a Mishas. Aportes restantes por registrar con el grupo. |
