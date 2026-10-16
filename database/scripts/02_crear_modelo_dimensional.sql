@@ -79,20 +79,20 @@ CREATE TABLE dbo.Dim_Sucursal (
 );
 GO
 
--- 3.5 Dim_Tiempo (Clave numéricas YYYYMMDD)
+-- 3.5 Dim_Tiempo (Clave numérica en formato YYYYMMDD)
 CREATE TABLE dbo.Dim_Tiempo (
-    Tiempo_SK           INT NOT NULL,
+    Fecha_SK            INT NOT NULL,
     Fecha               DATE NOT NULL,
     Anio                INT NOT NULL,
     Semestre            TINYINT NOT NULL,
     Trimestre           TINYINT NOT NULL,
     Mes                 TINYINT NOT NULL,
-    Nombre_Mes          VARCHAR(20) NOT NULL,
+    Nombre_Mes          NVARCHAR(20) NOT NULL,
     Dia                 TINYINT NOT NULL,
     Dia_Semana          TINYINT NOT NULL,
-    Nombre_Dia_Semana   VARCHAR(20) NOT NULL,
+    Nombre_Dia_Semana   NVARCHAR(20) NOT NULL,
     Es_Fin_De_Semana    BIT NOT NULL,
-    CONSTRAINT PK_Dim_Tiempo PRIMARY KEY CLUSTERED (Tiempo_SK)
+    CONSTRAINT PK_Dim_Tiempo PRIMARY KEY CLUSTERED (Fecha_SK)
 );
 GO
 
@@ -101,7 +101,7 @@ GO
 -- ==============================================================================
 CREATE TABLE dbo.Fact_Ventas (
     Venta_SK            BIGINT IDENTITY(1,1) NOT NULL,
-    Tiempo_SK           INT NOT NULL,
+    Fecha_SK            INT NOT NULL,
     Cliente_SK          INT NOT NULL,
     Empleado_SK         INT NOT NULL,
     Producto_SK         INT NOT NULL,
@@ -114,7 +114,7 @@ CREATE TABLE dbo.Fact_Ventas (
     Monto_Descuento     NUMERIC(14,2) NOT NULL CONSTRAINT DF_Fact_Ventas_MontoDesc DEFAULT 0.0,
     Monto_Neto          NUMERIC(14,2) NOT NULL,
     CONSTRAINT PK_Fact_Ventas PRIMARY KEY CLUSTERED (Venta_SK),
-    CONSTRAINT FK_Fact_Ventas_Dim_Tiempo FOREIGN KEY (Tiempo_SK) REFERENCES dbo.Dim_Tiempo(Tiempo_SK),
+    CONSTRAINT FK_Fact_Ventas_Dim_Tiempo FOREIGN KEY (Fecha_SK) REFERENCES dbo.Dim_Tiempo(Fecha_SK),
     CONSTRAINT FK_Fact_Ventas_Dim_Cliente FOREIGN KEY (Cliente_SK) REFERENCES dbo.Dim_Cliente(Cliente_SK),
     CONSTRAINT FK_Fact_Ventas_Dim_Empleado FOREIGN KEY (Empleado_SK) REFERENCES dbo.Dim_Empleado(Empleado_SK),
     CONSTRAINT FK_Fact_Ventas_Dim_Producto FOREIGN KEY (Producto_SK) REFERENCES dbo.Dim_Producto(Producto_SK),
@@ -125,7 +125,7 @@ GO
 -- ==============================================================================
 -- 5. Índices Analíticos No Agrupados para Optimización de Consultas (OLAP)
 -- ==============================================================================
-CREATE NONCLUSTERED INDEX IX_Fact_Ventas_Tiempo_SK ON dbo.Fact_Ventas(Tiempo_SK);
+CREATE NONCLUSTERED INDEX IX_Fact_Ventas_Fecha_SK ON dbo.Fact_Ventas(Fecha_SK);
 CREATE NONCLUSTERED INDEX IX_Fact_Ventas_Cliente_SK ON dbo.Fact_Ventas(Cliente_SK);
 CREATE NONCLUSTERED INDEX IX_Fact_Ventas_Empleado_SK ON dbo.Fact_Ventas(Empleado_SK);
 CREATE NONCLUSTERED INDEX IX_Fact_Ventas_Producto_SK ON dbo.Fact_Ventas(Producto_SK);
@@ -167,8 +167,8 @@ SET IDENTITY_INSERT dbo.Dim_Sucursal OFF;
 GO
 
 -- 6.5 Dim_Tiempo (-1)
-INSERT INTO dbo.Dim_Tiempo (Tiempo_SK, Fecha, Anio, Semestre, Trimestre, Mes, Nombre_Mes, Dia, Dia_Semana, Nombre_Dia_Semana, Es_Fin_De_Semana)
-VALUES (-1, '1900-01-01', 1900, 1, 1, 1, 'No Informado', 1, 1, 'No Informado', 0);
+INSERT INTO dbo.Dim_Tiempo (Fecha_SK, Fecha, Anio, Semestre, Trimestre, Mes, Nombre_Mes, Dia, Dia_Semana, Nombre_Dia_Semana, Es_Fin_De_Semana)
+VALUES (-1, '1900-01-01', 1900, 1, 1, 1, N'No Informado', 1, 1, N'No Informado', 0);
 GO
 
 PRINT '>> Modelo dimensional Albarran_DW creado exitosamente con sus tablas, restricciones, índices y miembros desconocidos.';

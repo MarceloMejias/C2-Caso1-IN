@@ -7,9 +7,11 @@
 ## Integrantes y sección
 
 - **Integrantes:**
-  - _(Marcelo Mejías Caviedes - 301_)
-  - _(Nombre Integrante 2 - 300)_
-  - _(Nombre Integrante 3 - 301)_
+  - Marcelo Mejías Caviedes — paralelo 301
+  - Mishas Silva — paralelo 300
+  - Natalia Cárdenas — paralelo 301
+
+**Profesor:** Hernán Saavedra
 
 ---
 
@@ -60,7 +62,7 @@ Una fila por cada línea de detalle de producto vendido en cada transacción de 
 - `Dim_Empleado`: Colaboradores y rol (`Empleado_SK`, `Empleado_BK`, `Nombre_Completo`, `Nombre_Cargo`, `Sueldo_Base`, `Fecha_Contrato`).
 - `Dim_Producto`: Catálogo de muebles (`Producto_SK`, `Producto_BK`, `Nombre_Producto`, `Nombre_Categoria`, `Precio_Catalogo`, `Descripcion`).
 - `Dim_Sucursal`: Locales de venta (`Sucursal_SK`, `Sucursal_BK`, `Nombre_Sucursal`, `Nombre_Comuna`).
-- `Dim_Tiempo`: Calendario analítico (`Tiempo_SK` formato `YYYYMMDD`, `Fecha`, `Anio`, `Semestre`, `Trimestre`, `Mes`, `Dia`, `Es_Fin_De_Semana`).
+- `Dim_Tiempo`: Calendario analítico (`Fecha_SK` formato `YYYYMMDD`, `Fecha`, `Anio`, `Semestre`, `Trimestre`, `Mes`, `Dia`, `Es_Fin_De_Semana`).
 
 ### Tabla de hechos y medidas
 

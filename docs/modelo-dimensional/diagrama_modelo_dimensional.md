@@ -15,11 +15,11 @@ erDiagram
     Dim_Empleado ||--o{ Fact_Ventas : "atiende (Empleado_SK)"
     Dim_Producto ||--o{ Fact_Ventas : "incluye (Producto_SK)"
     Dim_Sucursal ||--o{ Fact_Ventas : "origina (Sucursal_SK)"
-    Dim_Tiempo ||--o{ Fact_Ventas : "ocurre (Tiempo_SK)"
+    Dim_Tiempo ||--o{ Fact_Ventas : "ocurre (Fecha_SK)"
 
     Fact_Ventas {
         BIGINT Venta_SK PK "Clave sustituta de la venta"
-        INT Tiempo_SK FK "Clave foránea hacia Dim_Tiempo"
+        INT Fecha_SK FK "Clave foránea hacia Dim_Tiempo"
         INT Cliente_SK FK "Clave foránea hacia Dim_Cliente"
         INT Empleado_SK FK "Clave foránea hacia Dim_Empleado"
         INT Producto_SK FK "Clave foránea hacia Dim_Producto"
@@ -68,7 +68,7 @@ erDiagram
     }
 
     Dim_Tiempo {
-        INT Tiempo_SK PK "Clave numérica en formato YYYYMMDD"
+        INT Fecha_SK PK "Clave numérica en formato YYYYMMDD"
         DATE Fecha "Fecha calendario (YYYY-MM-DD)"
         INT Anio "Año calendario (2017..2026)"
         TINYINT Semestre "1 o 2"
@@ -93,7 +93,7 @@ erDiagram
 | Columna | Tipo de Dato | Rol Kimball | Permite Nulos | Descripción y Regla de Negocio |
 | :--- | :--- | :--- | :---: | :--- |
 | `Venta_SK` | `BIGINT IDENTITY(1,1)` | Primary Key | No | Clave sustituta única para cada línea de venta registrada en el DW. |
-| `Tiempo_SK` | `INT` | Foreign Key | No | FK hacia `Dim_Tiempo` en formato numérico `YYYYMMDD`. |
+| `Fecha_SK` | `INT` | Foreign Key | No | FK hacia `Dim_Tiempo` en formato numérico `YYYYMMDD`. |
 | `Cliente_SK` | `INT` | Foreign Key | No | FK hacia `Dim_Cliente` obtenida mediante Lookup. Si no existe, asigna `-1`. |
 | `Empleado_SK` | `INT` | Foreign Key | No | FK hacia `Dim_Empleado` obtenida mediante Lookup del vendedor. Si no existe, `-1`. |
 | `Producto_SK` | `INT` | Foreign Key | No | FK hacia `Dim_Producto` obtenida mediante Lookup. Si no existe, asigna `-1`. |
@@ -167,7 +167,7 @@ erDiagram
 
 | Columna | Tipo de Dato | Rol Kimball | Permite Nulos | Descripción y Regla de Negocio |
 | :--- | :--- | :--- | :---: | :--- |
-| `Tiempo_SK` | `INT` | Primary Key | No | Clave numérica fija en formato `YYYYMMDD` (ej. `20170101`). |
+| `Fecha_SK` | `INT` | Primary Key | No | Clave numérica fija en formato `YYYYMMDD` (ej. `20170101`). |
 | `Fecha` | `DATE` | Atributo | No | Fecha calendario estándar en formato `YYYY-MM-DD`. |
 | `Anio` | `INT` | Atributo | No | Año calendario en cuatro dígitos (`2017..2026`). |
 | `Semestre` | `TINYINT` | Atributo | No | Semestre del año: `1` (Ene-Jun) o `2` (Jul-Dic). |

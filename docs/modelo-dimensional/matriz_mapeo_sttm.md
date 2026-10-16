@@ -69,7 +69,7 @@ Esta matriz técnica define las reglas de extracción, transformación y carga (
 
 | Campo Calculado | Tipo Destino | Algoritmo / Fórmula T-SQL |
 | :--- | :--- | :--- |
-| `Tiempo_SK` | `INT` | `YEAR(Fecha) * 10000 + MONTH(Fecha) * 100 + DAY(Fecha)` (ej. `20170101`). |
+| `Fecha_SK` | `INT` | `YEAR(Fecha) * 10000 + MONTH(Fecha) * 100 + DAY(Fecha)` (ej. `20170101`). |
 | `Fecha` | `DATE` | Fecha calendario iterativa. |
 | `Anio` | `INT` | `YEAR(Fecha)` |
 | `Semestre` | `TINYINT` | `CASE WHEN MONTH(Fecha) <= 6 THEN 1 ELSE 2 END` |
@@ -104,7 +104,7 @@ Esta matriz técnica define las reglas de extracción, transformación y carga (
 | Campo Destino (`Fact_Ventas`) | Tipo Destino | Componente SSIS | Regla de Transformación / Lookup |
 | :--- | :--- | :--- | :--- |
 | `Venta_SK` | `BIGINT` | OLE DB Destination | Generado automáticamente por SQL Server (`IDENTITY(1,1)`). |
-| `Tiempo_SK` | `INT` | Derived Column | `YEAR(fecha) * 10000 + MONTH(fecha) * 100 + DAY(fecha)` |
+| `Fecha_SK` | `INT` | Derived Column | `YEAR(fecha) * 10000 + MONTH(fecha) * 100 + DAY(fecha)` |
 | `Cliente_SK` | `INT` | Lookup (`Dim_Cliente`) | Búsqueda por `Cliente_BK = cliente_id`. Si no hay match, asignar `-1`. |
 | `Empleado_SK` | `INT` | Lookup (`Dim_Empleado`) | Búsqueda por `Empleado_BK = vendedor_id`. Si no hay match, asignar `-1`. |
 | `Producto_SK` | `INT` | Lookup (`Dim_Producto`) | Búsqueda por `Producto_BK = producto_id`. Si no hay match, asignar `-1`. |
