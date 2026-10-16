@@ -1,0 +1,4 @@
+SELECT Cliente_BK,Nombre_Completo,Sexo,Fecha_Nacimiento,Estado_Civil FROM (SELECT e.cliente_id,CAST(LTRIM(RTRIM(COALESCE(e.nombre,N'')))+N' '+LTRIM(RTRIM(COALESCE(e.appaterno,N'')))+CASE WHEN NULLIF(LTRIM(RTRIM(e.apmaterno)),N'') IS NULL THEN N'' ELSE N' '+LTRIM(RTRIM(e.apmaterno)) END AS varchar(150)) COLLATE DATABASE_DEFAULT,
+ CAST(CASE WHEN UPPER(LTRIM(RTRIM(e.sexo)))='M' THEN 'Masculino' WHEN UPPER(LTRIM(RTRIM(e.sexo)))='F' THEN 'Femenino' ELSE 'No Informado' END AS varchar(20)) COLLATE DATABASE_DEFAULT,
+ CAST(e.fecha_nacimiento AS date),CAST(COALESCE(NULLIF(LTRIM(RTRIM(e.estado_civil)),N''),N'No Informado') AS varchar(50)) COLLATE DATABASE_DEFAULT
+ FROM dbo.clientes e WHERE NOT EXISTS(SELECT 1 FROM Albarran_DW.dbo.Dim_Cliente d WHERE d.Cliente_BK=e.cliente_id)) transformed(Cliente_BK,Nombre_Completo,Sexo,Fecha_Nacimiento,Estado_Civil);

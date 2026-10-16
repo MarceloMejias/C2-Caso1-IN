@@ -1,0 +1,133 @@
+<?xml version='1.0' encoding='utf-8'?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" DTS:refId="Package" DTS:CreationName="Microsoft.Package" DTS:DTSID="{30876986-2397-48A9-A0A0-D14D10D661A2}" DTS:ExecutableType="Microsoft.Package" DTS:ObjectName="Dim_Sucursal" DTS:LastModifiedProductVersion="16.0.0.0" DTS:LocaleID="1033" DTS:ProtectionLevel="0" DTS:PackageType="5" DTS:VersionMajor="1" DTS:VersionBuild="1" DTS:VersionGUID="{F271308E-B1A1-469E-A87E-0604918D66B2}" DTS:DelayValidation="True">
+  <DTS:Property DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:ConnectionManagers>
+    <DTS:ConnectionManager DTS:refId="Package.ConnectionManagers[Origen_Albarran]" DTS:CreationName="OLEDB" DTS:DTSID="{F15E6C95-F903-49A5-8938-F6D63F66B2E4}" DTS:ObjectName="Origen_Albarran" DTS:DelayValidation="True">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager DTS:ConnectionString="Data Source=.;Initial Catalog=Albarran;Provider=MSOLEDBSQL;Integrated Security=SSPI;Auto Translate=False;Trust Server Certificate=True;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+    <DTS:ConnectionManager DTS:refId="Package.ConnectionManagers[Destino_Albarran_DW]" DTS:CreationName="OLEDB" DTS:DTSID="{6C1923EE-854D-45B3-9E31-FA6660C13D44}" DTS:ObjectName="Destino_Albarran_DW" DTS:DelayValidation="True">
+      <DTS:ObjectData>
+        <DTS:ConnectionManager DTS:ConnectionString="Data Source=.;Initial Catalog=Albarran_DW;Provider=MSOLEDBSQL;Integrated Security=SSPI;Auto Translate=False;Trust Server Certificate=True;" />
+      </DTS:ObjectData>
+    </DTS:ConnectionManager>
+  </DTS:ConnectionManagers>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable DTS:refId="Package\01 Validar origen" DTS:CreationName="Microsoft.ExecuteSQLTask" DTS:DTSID="{198ACDD6-4097-4C9B-ABDA-5B34690D32A4}" DTS:ExecutableType="Microsoft.ExecuteSQLTask" DTS:ObjectName="01 Validar origen" DTS:DelayValidation="True" DTS:FailPackageOnFailure="True">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData SQLTask:Connection="{F15E6C95-F903-49A5-8938-F6D63F66B2E4}" SQLTask:SqlStatementSource="IF EXISTS(SELECT sucursal_id FROM dbo.sucursales GROUP BY sucursal_id HAVING COUNT(*)&gt;1)&#10; THROW 51000,'Sucursal duplicada en origen.',1;&#10;IF EXISTS(SELECT 1 FROM dbo.sucursales s LEFT JOIN dbo.comunas c ON c.comuna_id=s.comuna_id&#10; WHERE s.sucursal_id IS NULL OR s.sucursal_id=-1 OR c.comuna_id IS NULL&#10; OR NULLIF(LTRIM(RTRIM(s.sucursal)),'') IS NULL OR NULLIF(LTRIM(RTRIM(c.comuna)),'') IS NULL&#10; OR LEN(s.sucursal)&gt;100 OR LEN(c.comuna)&gt;100)&#10; THROW 51000,'Sucursal o comuna inexistente, vacia o demasiado larga.',1;" SQLTask:BypassPrepare="True" SQLTask:ResultType="ResultSetType_None" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable DTS:refId="Package\02 Cargar sucursales" DTS:CreationName="Microsoft.Pipeline" DTS:DTSID="{741DF104-494E-469B-9208-5126666398E9}" DTS:ExecutableType="Microsoft.Pipeline" DTS:ObjectName="02 Cargar sucursales" DTS:DelayValidation="True" DTS:FailPackageOnFailure="True">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline version="1">
+          <components>
+            <component refId="Package\02 Cargar sucursales\Sucursales y comunas" componentClassID="Microsoft.OLEDBSource" contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7" description="OLE DB Source" name="Sucursales y comunas" usesDispositions="true" version="7" validateExternalMetadata="False">
+              <properties>
+                <property dataType="System.Int32" description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out." name="CommandTimeout">0</property>
+                <property dataType="System.String" description="Specifies the name of the database object used to open a rowset." name="OpenRowset" />
+                <property dataType="System.String" description="Specifies the variable that contains the name of the database object used to open a rowset." name="OpenRowsetVariable" />
+                <property dataType="System.String" description="The SQL command to be executed." name="SqlCommand" UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT s.sucursal_id AS Sucursal_BK,
+ CAST(LTRIM(RTRIM(s.sucursal)) AS varchar(100)) AS Nombre_Sucursal,
+ CAST(LTRIM(RTRIM(c.comuna)) AS varchar(100)) AS Nombre_Comuna
+FROM dbo.sucursales AS s
+INNER JOIN dbo.comunas AS c ON c.comuna_id=s.comuna_id
+WHERE NOT EXISTS(SELECT 1 FROM Albarran_DW.dbo.Dim_Sucursal AS d WHERE d.Sucursal_BK=s.sucursal_id);</property>
+                <property dataType="System.String" description="The variable that contains the SQL command to be executed." name="SqlCommandVariable" />
+                <property dataType="System.Int32" description="Specifies the column code page to use when code page information is unavailable from the data source." name="DefaultCodePage">1252</property>
+                <property dataType="System.Boolean" description="Forces the use of the DefaultCodePage property value when describing character data." name="AlwaysUseDefaultCodePage">false</property>
+                <property dataType="System.Int32" description="Specifies the mode used to access the database." name="AccessMode" typeConverter="AccessMode">2</property>
+                <property dataType="System.String" description="The mappings between the parameters in the SQL command and variables." name="ParameterMapping" />
+              </properties>
+              <connections>
+                <connection refId="Package\02 Cargar sucursales\Sucursales y comunas.Connections[OleDbConnection]" connectionManagerID="{F15E6C95-F903-49A5-8938-F6D63F66B2E4}" connectionManagerRefId="Package.ConnectionManagers[Origen_Albarran]" name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output refId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output]" name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn refId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output].Columns[Sucursal_BK]" lineageId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output].Columns[Sucursal_BK]" name="Sucursal_BK" dataType="i4" externalMetadataColumnId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output].ExternalColumns[Sucursal_BK]" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" />
+                    <outputColumn refId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output].Columns[Nombre_Sucursal]" lineageId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output].Columns[Nombre_Sucursal]" name="Nombre_Sucursal" dataType="str" externalMetadataColumnId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output].ExternalColumns[Nombre_Sucursal]" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" length="100" codePage="1252" />
+                    <outputColumn refId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output].Columns[Nombre_Comuna]" lineageId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output].Columns[Nombre_Comuna]" name="Nombre_Comuna" dataType="str" externalMetadataColumnId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output].ExternalColumns[Nombre_Comuna]" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" length="100" codePage="1252" />
+                  </outputColumns>
+                  <externalMetadataColumns isUsed="True">
+                    <externalMetadataColumn refId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output].ExternalColumns[Sucursal_BK]" name="Sucursal_BK" dataType="i4" />
+                    <externalMetadataColumn refId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output].ExternalColumns[Nombre_Sucursal]" name="Nombre_Sucursal" dataType="str" length="100" codePage="1252" />
+                    <externalMetadataColumn refId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output].ExternalColumns[Nombre_Comuna]" name="Nombre_Comuna" dataType="str" length="100" codePage="1252" />
+                  </externalMetadataColumns>
+                </output>
+                <output refId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Error Output]" name="OLE DB Source Error Output" isErrorOut="true">
+                  <outputColumns>
+                    <outputColumn refId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Error Output].Columns[ErrorCode]" lineageId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Error Output].Columns[ErrorCode]" name="ErrorCode" dataType="i4" specialFlags="1" />
+                    <outputColumn refId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]" lineageId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]" name="ErrorColumn" dataType="i4" specialFlags="2" />
+                    <outputColumn refId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Error Output].Columns[Sucursal_BK]" lineageId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Error Output].Columns[Sucursal_BK]" name="Sucursal_BK" dataType="i4" />
+                    <outputColumn refId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Error Output].Columns[Nombre_Sucursal]" lineageId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Error Output].Columns[Nombre_Sucursal]" name="Nombre_Sucursal" dataType="str" length="100" codePage="1252" />
+                    <outputColumn refId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Error Output].Columns[Nombre_Comuna]" lineageId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Error Output].Columns[Nombre_Comuna]" name="Nombre_Comuna" dataType="str" length="100" codePage="1252" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component refId="Package\02 Cargar sucursales\Dim_Sucursal" componentClassID="Microsoft.OLEDBDestination" contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4" description="OLE DB Destination" name="Dim_Sucursal" usesDispositions="true" version="4" validateExternalMetadata="False">
+              <properties>
+                <property dataType="System.Int32" description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out." name="CommandTimeout">0</property>
+                <property dataType="System.String" description="Specifies the name of the database object used to open a rowset." name="OpenRowset">[dbo].[Dim_Sucursal]</property>
+                <property dataType="System.String" description="Specifies the variable that contains the name of the database object used to open a rowset." name="OpenRowsetVariable" />
+                <property dataType="System.String" description="The SQL command to be executed." name="SqlCommand" UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor" />
+                <property dataType="System.Int32" description="Specifies the column code page to use when code page information is unavailable from the data source." name="DefaultCodePage">1252</property>
+                <property dataType="System.Boolean" description="Forces the use of the DefaultCodePage property value when describing character data." name="AlwaysUseDefaultCodePage">false</property>
+                <property dataType="System.Int32" description="Specifies the mode used to access the database." name="AccessMode" typeConverter="AccessMode">3</property>
+                <property dataType="System.Boolean" description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on." name="FastLoadKeepIdentity">false</property>
+                <property dataType="System.Boolean" description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on." name="FastLoadKeepNulls">false</property>
+                <property dataType="System.String" description="Specifies options to be used with fast load.  Applies only if fast load is turned on." name="FastLoadOptions">CHECK_CONSTRAINTS</property>
+                <property dataType="System.Int32" description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on." name="FastLoadMaxInsertCommitSize">0</property>
+              </properties>
+              <connections>
+                <connection refId="Package\02 Cargar sucursales\Dim_Sucursal.Connections[OleDbConnection]" connectionManagerID="{6C1923EE-854D-45B3-9E31-FA6660C13D44}" connectionManagerRefId="Package.ConnectionManagers[Destino_Albarran_DW]" name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input refId="Package\02 Cargar sucursales\Dim_Sucursal.Inputs[OLE DB Destination Input]" name="OLE DB Destination Input" errorOrTruncationOperation="Insert" errorRowDisposition="FailComponent" hasSideEffects="true">
+                  <inputColumns>
+                    <inputColumn refId="Package\02 Cargar sucursales\Dim_Sucursal.Inputs[OLE DB Destination Input].Columns[Sucursal_BK]" cachedName="Sucursal_BK" cachedDataType="i4" lineageId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output].Columns[Sucursal_BK]" externalMetadataColumnId="Package\02 Cargar sucursales\Dim_Sucursal.Inputs[OLE DB Destination Input].ExternalColumns[Sucursal_BK]" />
+                    <inputColumn refId="Package\02 Cargar sucursales\Dim_Sucursal.Inputs[OLE DB Destination Input].Columns[Nombre_Sucursal]" cachedName="Nombre_Sucursal" cachedDataType="str" lineageId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output].Columns[Nombre_Sucursal]" externalMetadataColumnId="Package\02 Cargar sucursales\Dim_Sucursal.Inputs[OLE DB Destination Input].ExternalColumns[Nombre_Sucursal]" cachedLength="100" cachedCodepage="1252" />
+                    <inputColumn refId="Package\02 Cargar sucursales\Dim_Sucursal.Inputs[OLE DB Destination Input].Columns[Nombre_Comuna]" cachedName="Nombre_Comuna" cachedDataType="str" lineageId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output].Columns[Nombre_Comuna]" externalMetadataColumnId="Package\02 Cargar sucursales\Dim_Sucursal.Inputs[OLE DB Destination Input].ExternalColumns[Nombre_Comuna]" cachedLength="100" cachedCodepage="1252" />
+                  </inputColumns>
+                  <externalMetadataColumns isUsed="True">
+                    <externalMetadataColumn refId="Package\02 Cargar sucursales\Dim_Sucursal.Inputs[OLE DB Destination Input].ExternalColumns[Sucursal_BK]" name="Sucursal_BK" dataType="i4" />
+                    <externalMetadataColumn refId="Package\02 Cargar sucursales\Dim_Sucursal.Inputs[OLE DB Destination Input].ExternalColumns[Nombre_Sucursal]" name="Nombre_Sucursal" dataType="str" length="100" codePage="1252" />
+                    <externalMetadataColumn refId="Package\02 Cargar sucursales\Dim_Sucursal.Inputs[OLE DB Destination Input].ExternalColumns[Nombre_Comuna]" name="Nombre_Comuna" dataType="str" length="100" codePage="1252" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output refId="Package\02 Cargar sucursales\Dim_Sucursal.Outputs[OLE DB Destination Error Output]" name="OLE DB Destination Error Output" isErrorOut="true" synchronousInputId="Package\02 Cargar sucursales\Dim_Sucursal.Inputs[OLE DB Destination Input]" exclusionGroup="1">
+                  <outputColumns>
+                    <outputColumn refId="Package\02 Cargar sucursales\Dim_Sucursal.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]" lineageId="Package\02 Cargar sucursales\Dim_Sucursal.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]" name="ErrorCode" dataType="i4" specialFlags="1" />
+                    <outputColumn refId="Package\02 Cargar sucursales\Dim_Sucursal.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]" lineageId="Package\02 Cargar sucursales\Dim_Sucursal.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]" name="ErrorColumn" dataType="i4" specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path refId="Package\02 Cargar sucursales.Paths[Origen a destino]" name="Origen a destino" startId="Package\02 Cargar sucursales\Sucursales y comunas.Outputs[OLE DB Source Output]" endId="Package\02 Cargar sucursales\Dim_Sucursal.Inputs[OLE DB Destination Input]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable DTS:refId="Package\03 Validar dimension" DTS:CreationName="Microsoft.ExecuteSQLTask" DTS:DTSID="{21CDECB6-8025-418E-82C4-918AEC25061C}" DTS:ExecutableType="Microsoft.ExecuteSQLTask" DTS:ObjectName="03 Validar dimension" DTS:DelayValidation="True" DTS:FailPackageOnFailure="True">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData SQLTask:Connection="{6C1923EE-854D-45B3-9E31-FA6660C13D44}" SQLTask:SqlStatementSource="IF NOT EXISTS(SELECT 1 FROM dbo.Dim_Sucursal WHERE Sucursal_SK=-1 AND Sucursal_BK=-1)&#10; THROW 51000,'Falta el miembro desconocido -1.',1;&#10;IF EXISTS(SELECT Sucursal_BK FROM dbo.Dim_Sucursal GROUP BY Sucursal_BK HAVING COUNT(*)&gt;1)&#10; THROW 51000,'Hay claves de negocio duplicadas.',1;&#10;IF EXISTS(SELECT s.sucursal_id,CAST(LTRIM(RTRIM(s.sucursal)) AS varchar(100)) COLLATE DATABASE_DEFAULT,CAST(LTRIM(RTRIM(c.comuna)) AS varchar(100)) COLLATE DATABASE_DEFAULT&#10; FROM Albarran.dbo.sucursales s JOIN Albarran.dbo.comunas c ON c.comuna_id=s.comuna_id&#10; EXCEPT SELECT Sucursal_BK,Nombre_Sucursal COLLATE DATABASE_DEFAULT,Nombre_Comuna COLLATE DATABASE_DEFAULT FROM dbo.Dim_Sucursal WHERE Sucursal_SK&lt;&gt;-1)&#10; OR EXISTS(SELECT Sucursal_BK,Nombre_Sucursal COLLATE DATABASE_DEFAULT,Nombre_Comuna COLLATE DATABASE_DEFAULT FROM dbo.Dim_Sucursal WHERE Sucursal_SK&lt;&gt;-1&#10; EXCEPT SELECT s.sucursal_id,CAST(LTRIM(RTRIM(s.sucursal)) AS varchar(100)) COLLATE DATABASE_DEFAULT,CAST(LTRIM(RTRIM(c.comuna)) AS varchar(100)) COLLATE DATABASE_DEFAULT&#10; FROM Albarran.dbo.sucursales s JOIN Albarran.dbo.comunas c ON c.comuna_id=s.comuna_id)&#10; THROW 51000,'La dimension no coincide con sucursales y comunas de origen.',1;" SQLTask:BypassPrepare="True" SQLTask:ResultType="ResultSetType_None" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint DTS:refId="Package.PrecedenceConstraints[Exito0]" DTS:DTSID="{CB09E90C-3504-4049-8756-CD0363956FA3}" DTS:From="Package\01 Validar origen" DTS:To="Package\02 Cargar sucursales" DTS:LogicalAnd="True" DTS:ObjectName="Exito0" DTS:Value="0" />
+    <DTS:PrecedenceConstraint DTS:refId="Package.PrecedenceConstraints[Exito1]" DTS:DTSID="{3E4B0811-0A5F-4ACE-8259-68FFAC08F4CE}" DTS:From="Package\02 Cargar sucursales" DTS:To="Package\03 Validar dimension" DTS:LogicalAnd="True" DTS:ObjectName="Exito1" DTS:Value="0" />
+  </DTS:PrecedenceConstraints>
+</DTS:Executable>

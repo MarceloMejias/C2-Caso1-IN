@@ -9,6 +9,36 @@
   </Database>
   <DataSources />
   <DataSourceViews />
+  <ProjectConnectionManagers>
+    <ConnectionManager>
+      <Name>Albarran_OLTP.conmgr</Name>
+      <FullPath>Albarran_OLTP.conmgr</FullPath>
+    </ConnectionManager>
+    <ConnectionManager>
+      <Name>Albarran_DW.conmgr</Name>
+      <FullPath>Albarran_DW.conmgr</FullPath>
+    </ConnectionManager>
+  </ProjectConnectionManagers>
+  <Package>
+    <Name>Dim_Sucursal.dtsx</Name>
+    <FullPath>Dim_Sucursal.dtsx</FullPath>
+  </Package>
+  <Package>
+    <Name>Dim_Cliente.dtsx</Name>
+    <FullPath>Dim_Cliente.dtsx</FullPath>
+  </Package>
+  <Package>
+    <Name>Dim_Empleado.dtsx</Name>
+    <FullPath>Dim_Empleado.dtsx</FullPath>
+  </Package>
+  <Package>
+    <Name>Dim_Producto.dtsx</Name>
+    <FullPath>Dim_Producto.dtsx</FullPath>
+  </Package>
+  <Package>
+    <Name>Fact_Ventas.dtsx</Name>
+    <FullPath>Fact_Ventas.dtsx</FullPath>
+  </Package>
   <DeploymentModelSpecificContent>
     <Manifest>
       <ns0:Project ns0:ProtectionLevel="DontSaveSensitive">

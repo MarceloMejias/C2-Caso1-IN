@@ -1,0 +1,42 @@
+{
+  "prueba": "Dim_Cliente - consultas SQL, metadatos y estructura nativa",
+  "resultado": "OK",
+  "filas_reales": 20,
+  "miembros_desconocidos": 1,
+  "segunda_extraccion": 0,
+  "transformacion_python_vs_sql": "Coincide en todas las filas y atributos",
+  "claves_conservadas": true,
+  "discrepancia_detectada_y_revertida": true,
+  "metadata_origen": [
+    {
+      "name": "Cliente_BK",
+      "system_type_name": "int"
+    },
+    {
+      "name": "Nombre",
+      "system_type_name": "nvarchar(150)"
+    },
+    {
+      "name": "ApPaterno",
+      "system_type_name": "nvarchar(150)"
+    },
+    {
+      "name": "ApMaterno",
+      "system_type_name": "nvarchar(150)"
+    },
+    {
+      "name": "Sexo_Origen",
+      "system_type_name": "nvarchar(1)"
+    },
+    {
+      "name": "Fecha_Nacimiento",
+      "system_type_name": "date"
+    },
+    {
+      "name": "Estado_Civil",
+      "system_type_name": "nvarchar(50)"
+    }
+  ],
+  "compilacion_ssisbuild": "Correcta",
+  "ejecucion_ssis": "Pendiente en SSIS Windows; las cargas de ensayo se realizaron mediante SQL."
+}

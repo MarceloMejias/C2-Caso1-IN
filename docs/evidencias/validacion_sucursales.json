@@ -1,0 +1,22 @@
+{
+  "prueba": "Consultas y mapeo de Dim_Sucursal",
+  "resultado": "OK",
+  "sucursales_reales": 3,
+  "miembros_desconocidos": 1,
+  "segunda_extraccion": 0,
+  "metadata_sql": [
+    {
+      "name": "Sucursal_BK",
+      "system_type_name": "int"
+    },
+    {
+      "name": "Nombre_Sucursal",
+      "system_type_name": "varchar(100)"
+    },
+    {
+      "name": "Nombre_Comuna",
+      "system_type_name": "varchar(100)"
+    }
+  ],
+  "ejecucion_ssis": "Pendiente de runtime Windows"
+}
