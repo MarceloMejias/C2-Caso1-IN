@@ -85,16 +85,6 @@ El script `database/scripts/03_poblar_dim_tiempo.sql` genera el calendario de **
 
 ---
 
-### Carga de Dim_Sucursal (issue #9)
-
-El paquete [Dim_Sucursal.dtsx](etl/proyecto-ssis/Dim_Sucursal.dtsx) une sucursales y comunas, limpia espacios y carga las claves de negocio ausentes. Conserva el miembro desconocido y valida el resultado. Configuración y ejecución: [guía del paquete](etl/proyecto-ssis/Dim_Sucursal.md).
-
-Verificado: compilación SSISBuild, metadatos y consultas contra el respaldo y el DDL del proyecto; tres sucursales reales más el miembro desconocido, sin nuevas filas al repetir la extracción. [Evidencia SQL](docs/evidencias/validacion_sucursales.json).
-
-**Pendiente:** incorporar el paquete al proyecto del issue #8 y ejecutarlo en SSIS Windows con las conexiones del grupo. La compilación y las pruebas SQL no reemplazan esa ejecución.
-
----
-
 ## Cubo OLAP - Fase 2
 
 _(Corresponde a la Fase 2 del certamen)_
