@@ -27,14 +27,18 @@ Diseñar e implementar una solución integral de Inteligencia de Negocios basada
 
 ## KPI definidos
 
-_(Sección en desarrollo en `notebooks/modelo_de_negocios.ipynb`)_
+A partir de la exploración de datos en [notebooks/modelo_de_negocios.ipynb](file:///notebooks/modelo_de_negocios.ipynb), se definieron 6 KPIs clave para el seguimiento del negocio:
 
-- **KPI 1:** Ingresos Totales por Ventas ($ CLP).
-- **KPI 2:** Ticket Promedio de Venta.
-- **KPI 3:** Cantidad de Unidades Vendidas por Categoría / Producto.
-- **KPI 4:** Ventas Totales por Sucursal y Comuna.
-- **KPI 5:** Rendimiento y Productividad de la Fuerza de Ventas.
-- **KPI 6:** Segmentación Demográfica de Clientes (Género, Rango Etario, Estado Civil).
+| KPI | Nombre | Fórmula | ¿Para qué le sirve al dueño? |
+| :---: | :--- | :--- | :--- |
+| **KPI-01** | **Ingresos Totales por Ventas** | $\sum (\text{Cantidad} \times \text{Precio Unitario})$ | Mide cuánto dinero entra al negocio ($414.022.446 CLP en 2017) para ver la evolución mes a mes. |
+| **KPI-02** | **Ticket Promedio** | $\frac{\text{Ingreso Total}}{\text{Total de Ventas}}$ | Muestra el gasto promedio por compra ($1.134.308 CLP) para evaluar venta de complementos. |
+| **KPI-03** | **Unidades por Categoría** | $\sum \text{Cantidad por Categoría}$ | Identifica los muebles con mayor salida (Comedores y Bares) para planificar compras y stock. |
+| **KPI-04** | **Ventas por Sucursal** | $\sum \text{Venta Neta por Tienda}$ | Compara la facturación de las tiendas: Manquehue ($149,3M), Viña del Mar ($134,5M) y Franklin ($130,2M). |
+| **KPI-05** | **Rendimiento por Vendedor** | $\text{Monto Vendido y N° de Ventas}$ | Evalúa el desempeño de los 6 vendedores frente a su sueldo base ($255.000 CLP mensual). |
+| **KPI-06** | **Perfil de Clientes** | $\% \text{ de ventas por grupo}$ | Revela que el 89% de las ventas son a clientes casados, orientando la publicidad a familias. |
+
+
 
 ---
 
@@ -52,16 +56,19 @@ Una fila por cada línea de detalle de producto vendido en cada transacción de 
 
 ### Dimensiones
 
-- `Dim_Cliente`: Datos demográficos del cliente.
-- `Dim_Empleado`: Datos del colaborador y cargo.
-- `Dim_Producto`: Información del producto y su categoría.
-- `Dim_Sucursal`: Ubicación de la tienda y su comuna.
-- `Dim_Tiempo`: Calendario multidimensional (año, semestre, trimestre, mes, día).
+- `Dim_Cliente`: Datos demográficos (`Cliente_SK`, `Cliente_BK`, `Nombre_Completo`, `Sexo`, `Fecha_Nacimiento`, `Estado_Civil`).
+- `Dim_Empleado`: Colaboradores y rol (`Empleado_SK`, `Empleado_BK`, `Nombre_Completo`, `Nombre_Cargo`, `Sueldo_Base`, `Fecha_Contrato`).
+- `Dim_Producto`: Catálogo de muebles (`Producto_SK`, `Producto_BK`, `Nombre_Producto`, `Nombre_Categoria`, `Precio_Catalogo`, `Descripcion`).
+- `Dim_Sucursal`: Locales de venta (`Sucursal_SK`, `Sucursal_BK`, `Nombre_Sucursal`, `Nombre_Comuna`).
+- `Dim_Tiempo`: Calendario analítico (`Tiempo_SK` formato `YYYYMMDD`, `Fecha`, `Anio`, `Semestre`, `Trimestre`, `Mes`, `Dia`, `Es_Fin_De_Semana`).
 
 ### Tabla de hechos y medidas
 
 - **Tabla de Hechos:** `Fact_Ventas`
+- **Granularidad:** Una fila por cada producto vendido en cada transacción (`detalle_ventas`).
+- **Dimensión Degenerada:** `Venta_ID` (número original del comprobante).
 - **Métricas:** `Cantidad`, `Precio_Unitario`, `Monto_Bruto`, `Monto_Descuento`, `Monto_Neto`.
+
 
 ---
 
