@@ -1,0 +1,33 @@
+{
+  "herramienta": "Microsoft SSISBuild",
+  "destino": "SQLServer2022",
+  "resultado": "Compilación conjunta correcta",
+  "artefacto": "Albarran_ETL.ispac",
+  "entorno": "Copia de integración formada con los archivos reales de las cinco ramas feature. No se ejecutaron los paquetes en SSIS.",
+  "correccion_proyecto": "DeploymentModel y manifiesto válidos; referencias a los cinco nombres de paquete existentes; archivo .database presente.",
+  "paquetes": [
+    {
+      "nombre": "Dim_Cliente.dtsx",
+      "sha256": "28b52a7a7174b0236b98b79076039c9f57b8fab96333e0e991dc298e491766f6"
+    },
+    {
+      "nombre": "Dim_Empleado.dtsx",
+      "sha256": "1ad666a363ff6739e39fca9fc6f3f680bc3079b3c0f62da39158ef293e0cfea6"
+    },
+    {
+      "nombre": "Dim_Producto.dtsx",
+      "sha256": "f12a743b0582c9b5aa545b4851a35be0671c9adca06a989b2e25e7b2b4555fda"
+    },
+    {
+      "nombre": "Dim_Sucursal.dtsx",
+      "sha256": "5d379b097e75765ff5c2524012868067f4c6e3dd6723b4d99ea75b97189a96b8"
+    },
+    {
+      "nombre": "Fact_Ventas.dtsx",
+      "sha256": "997886df80e9ad788b7ccc1881c0d5af803d839b05f0dd227450d35e26be6479"
+    }
+  ],
+  "ejecucion_ssis": "Pendiente en Windows",
+  "integracion_git": "Las cinco ramas feature se combinaron sin conflictos mediante merge-tree, sin modificar main. El proyecto extraído del resultado se compiló correctamente.",
+  "comprobaciones_estructura": "Referencias de los cinco paquetes presentes; refId únicos; lineageId de entradas y extremos de paths existentes."
+}

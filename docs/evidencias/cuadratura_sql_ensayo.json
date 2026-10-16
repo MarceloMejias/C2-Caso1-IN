@@ -1,0 +1,89 @@
+{
+  "entorno": "Instancia de ensayo; dimensiones y hechos cargados mediante SQL equivalente, no mediante ejecución de los paquetes SSIS.",
+  "script": "database/scripts/04_validacion_cuadratura_dw.sql",
+  "resultado": "9 de 9 APROBADO [PASS]",
+  "backup_final": "No generado; corresponde a la ejecución final del grupo.",
+  "pruebas": [
+    {
+      "ID": 1,
+      "Categoria": "Volumetría",
+      "Prueba": "Conteo de Transacciones en Fact_Ventas",
+      "Valor_Origen_Esperado": "365",
+      "Valor_Destino_Obtenido": "365",
+      "Diferencia": "0",
+      "Estado": "APROBADO [PASS]"
+    },
+    {
+      "ID": 2,
+      "Categoria": "Volumetría",
+      "Prueba": "Total Unidades Vendidas (Cantidad)",
+      "Valor_Origen_Esperado": "724",
+      "Valor_Destino_Obtenido": "724",
+      "Diferencia": "0",
+      "Estado": "APROBADO [PASS]"
+    },
+    {
+      "ID": 3,
+      "Categoria": "Financiero",
+      "Prueba": "Facturación Bruta Total (CLP)",
+      "Valor_Origen_Esperado": "$ 414.022.446",
+      "Valor_Destino_Obtenido": "$ 414.022.446",
+      "Diferencia": "$ 0",
+      "Estado": "APROBADO [PASS]"
+    },
+    {
+      "ID": 4,
+      "Categoria": "Financiero",
+      "Prueba": "Monto Total Descuentos (CLP)",
+      "Valor_Origen_Esperado": "$ 0",
+      "Valor_Destino_Obtenido": "$ 0",
+      "Diferencia": "$ 0",
+      "Estado": "APROBADO [PASS]"
+    },
+    {
+      "ID": 5,
+      "Categoria": "Financiero",
+      "Prueba": "Facturación Neta Total (CLP)",
+      "Valor_Origen_Esperado": "$ 414.022.446",
+      "Valor_Destino_Obtenido": "$ 414.022.446",
+      "Diferencia": "$ 0",
+      "Estado": "APROBADO [PASS]"
+    },
+    {
+      "ID": 6,
+      "Categoria": "Integridad FK",
+      "Prueba": "Claves No Mapeadas (SK = -1 en Fact_Ventas)",
+      "Valor_Origen_Esperado": "0 (Cero)",
+      "Valor_Destino_Obtenido": "0",
+      "Diferencia": "0",
+      "Estado": "APROBADO [PASS]"
+    },
+    {
+      "ID": 7,
+      "Categoria": "Calidad Datos",
+      "Prueba": "Valores NULL en Descripcion (Dim_Producto)",
+      "Valor_Origen_Esperado": "0 (Sin nulos)",
+      "Valor_Destino_Obtenido": "0",
+      "Diferencia": "0",
+      "Estado": "APROBADO [PASS]"
+    },
+    {
+      "ID": 8,
+      "Categoria": "Modelo Kimball",
+      "Prueba": "Presencia Miembro SK = -1 en las 5 Dimensiones",
+      "Valor_Origen_Esperado": "5 Dimensiones",
+      "Valor_Destino_Obtenido": "5 Dimensiones",
+      "Diferencia": "0",
+      "Estado": "APROBADO [PASS]"
+    },
+    {
+      "ID": 9,
+      "Categoria": "Modelo Kimball",
+      "Prueba": "Registros Calendario en Dim_Tiempo (2017-2026)",
+      "Valor_Origen_Esperado": "3652 días",
+      "Valor_Destino_Obtenido": "3652 días",
+      "Diferencia": "0",
+      "Estado": "APROBADO [PASS]"
+    }
+  ]
+}

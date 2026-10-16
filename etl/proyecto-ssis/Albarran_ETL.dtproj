@@ -1,16 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <ProductVersion>16.0.0000.0</ProductVersion>
-  <SchemaVersion>9.0</SchemaVersion>
+<?xml version='1.0' encoding='utf-8'?>
+<Project xmlns:ns0="www.microsoft.com/SqlServer/SSIS">
+  <DeploymentModel>Project</DeploymentModel>
+  <ProductVersion>16.0.0.0</ProductVersion>
+  <SchemaVersion>9.0.1.0</SchemaVersion>
   <Database>
     <Name>Albarran_ETL.database</Name>
-    <AppendedDependencies>
-      <DtprojProperty>
-        <Name>TargetServerVersion</Name>
-        <Value xsi:type="xsd:string">SQLServer2022</Value>
-      </DtprojProperty>
-    </AppendedDependencies>
+    <FullPath>Albarran_ETL.database</FullPath>
   </Database>
+  <DataSources />
+  <DataSourceViews />
   <ProjectConnectionManagers>
     <ConnectionManager>
       <Name>Albarran_OLTP.conmgr</Name>
@@ -22,38 +20,148 @@
     </ConnectionManager>
   </ProjectConnectionManagers>
   <Package>
-    <Name>00_Master_ETL.dtsx</Name>
-    <FullPath>00_Master_ETL.dtsx</FullPath>
-  </Package>
-  <Package>
     <Name>Dim_Sucursal.dtsx</Name>
     <FullPath>Dim_Sucursal.dtsx</FullPath>
   </Package>
   <Package>
-    <Name>02_Carga_Dim_Cliente.dtsx</Name>
-    <FullPath>02_Carga_Dim_Cliente.dtsx</FullPath>
+    <Name>Dim_Cliente.dtsx</Name>
+    <FullPath>Dim_Cliente.dtsx</FullPath>
   </Package>
   <Package>
-    <Name>03_Carga_Dim_Empleado.dtsx</Name>
-    <FullPath>03_Carga_Dim_Empleado.dtsx</FullPath>
+    <Name>Dim_Empleado.dtsx</Name>
+    <FullPath>Dim_Empleado.dtsx</FullPath>
   </Package>
   <Package>
     <Name>Dim_Producto.dtsx</Name>
     <FullPath>Dim_Producto.dtsx</FullPath>
   </Package>
   <Package>
-    <Name>05_Carga_Fact_Ventas.dtsx</Name>
-    <FullPath>05_Carga_Fact_Ventas.dtsx</FullPath>
+    <Name>Fact_Ventas.dtsx</Name>
+    <FullPath>Fact_Ventas.dtsx</FullPath>
   </Package>
+  <DeploymentModelSpecificContent>
+    <Manifest>
+      <ns0:Project ns0:ProtectionLevel="DontSaveSensitive">
+        <ns0:Properties>
+          <ns0:Property ns0:Name="ID">{3B0F5953-2F44-4A59-8BC2-5707DFE5A44E}</ns0:Property>
+          <ns0:Property ns0:Name="Name">Albarran_ETL</ns0:Property>
+          <ns0:Property ns0:Name="VersionMajor">1</ns0:Property>
+          <ns0:Property ns0:Name="VersionMinor">0</ns0:Property>
+          <ns0:Property ns0:Name="VersionBuild">1</ns0:Property>
+          <ns0:Property ns0:Name="VersionComments">Fase 1</ns0:Property>
+          <ns0:Property ns0:Name="CreationDate">2026-10-15T00:00:00</ns0:Property>
+          <ns0:Property ns0:Name="CreatorName">Equipo Albarran</ns0:Property>
+          <ns0:Property ns0:Name="CreatorComputerName" />
+          <ns0:Property ns0:Name="Description">ETL nativo de dimensiones y ventas de Albarran</ns0:Property>
+          <ns0:Property ns0:Name="FormatVersion">1</ns0:Property>
+        </ns0:Properties>
+        <ns0:Packages>
+          <ns0:Package ns0:Name="Dim_Sucursal.dtsx" ns0:EntryPoint="1" />
+          <ns0:Package ns0:Name="Dim_Cliente.dtsx" ns0:EntryPoint="1" />
+          <ns0:Package ns0:Name="Dim_Empleado.dtsx" ns0:EntryPoint="1" />
+          <ns0:Package ns0:Name="Dim_Producto.dtsx" ns0:EntryPoint="1" />
+          <ns0:Package ns0:Name="Fact_Ventas.dtsx" ns0:EntryPoint="1" />
+        </ns0:Packages>
+        <ns0:ConnectionManagers>
+          <ns0:ConnectionManager ns0:Name="Albarran_OLTP.conmgr" />
+          <ns0:ConnectionManager ns0:Name="Albarran_DW.conmgr" />
+        </ns0:ConnectionManagers>
+        <ns0:DeploymentInfo>
+          <ns0:ProjectConnectionParameters />
+          <ns0:PackageInfo>
+            <ns0:PackageMetaData ns0:Name="Dim_Sucursal.dtsx">
+              <ns0:Properties>
+                <ns0:Property ns0:Name="ID">{30876986-2397-48A9-A0A0-D14D10D661A2}</ns0:Property>
+                <ns0:Property ns0:Name="Name">Dim_Sucursal</ns0:Property>
+                <ns0:Property ns0:Name="VersionMajor">1</ns0:Property>
+                <ns0:Property ns0:Name="VersionMinor">0</ns0:Property>
+                <ns0:Property ns0:Name="VersionBuild">1</ns0:Property>
+                <ns0:Property ns0:Name="VersionComments">Fase 1</ns0:Property>
+                <ns0:Property ns0:Name="VersionGUID">{F271308E-B1A1-469E-A87E-0604918D66B2}</ns0:Property>
+                <ns0:Property ns0:Name="PackageFormatVersion">8</ns0:Property>
+                <ns0:Property ns0:Name="Description">Carga de Dim_Sucursal</ns0:Property>
+                <ns0:Property ns0:Name="ProtectionLevel">0</ns0:Property>
+              </ns0:Properties>
+              <ns0:Parameters />
+            </ns0:PackageMetaData>
+            <ns0:PackageMetaData ns0:Name="Dim_Cliente.dtsx">
+              <ns0:Properties>
+                <ns0:Property ns0:Name="ID">{742DCA21-7702-44FD-B9CF-4851F946AF49}</ns0:Property>
+                <ns0:Property ns0:Name="Name">Dim_Cliente</ns0:Property>
+                <ns0:Property ns0:Name="VersionMajor">1</ns0:Property>
+                <ns0:Property ns0:Name="VersionMinor">0</ns0:Property>
+                <ns0:Property ns0:Name="VersionBuild">1</ns0:Property>
+                <ns0:Property ns0:Name="VersionComments">Fase 1</ns0:Property>
+                <ns0:Property ns0:Name="VersionGUID">{A35F1F38-32A3-443D-BB65-D8D064D35551}</ns0:Property>
+                <ns0:Property ns0:Name="PackageFormatVersion">8</ns0:Property>
+                <ns0:Property ns0:Name="Description">Carga de Dim_Cliente</ns0:Property>
+                <ns0:Property ns0:Name="ProtectionLevel">0</ns0:Property>
+              </ns0:Properties>
+              <ns0:Parameters />
+            </ns0:PackageMetaData>
+            <ns0:PackageMetaData ns0:Name="Dim_Empleado.dtsx">
+              <ns0:Properties>
+                <ns0:Property ns0:Name="ID">{2CA81872-B482-4943-B046-255C8F629D51}</ns0:Property>
+                <ns0:Property ns0:Name="Name">Dim_Empleado</ns0:Property>
+                <ns0:Property ns0:Name="VersionMajor">1</ns0:Property>
+                <ns0:Property ns0:Name="VersionMinor">0</ns0:Property>
+                <ns0:Property ns0:Name="VersionBuild">1</ns0:Property>
+                <ns0:Property ns0:Name="VersionComments">Fase 1</ns0:Property>
+                <ns0:Property ns0:Name="VersionGUID">{228F7F76-4357-47B3-9994-4CC34060B7B6}</ns0:Property>
+                <ns0:Property ns0:Name="PackageFormatVersion">8</ns0:Property>
+                <ns0:Property ns0:Name="Description">Carga de Dim_Empleado</ns0:Property>
+                <ns0:Property ns0:Name="ProtectionLevel">0</ns0:Property>
+              </ns0:Properties>
+              <ns0:Parameters />
+            </ns0:PackageMetaData>
+            <ns0:PackageMetaData ns0:Name="Dim_Producto.dtsx">
+              <ns0:Properties>
+                <ns0:Property ns0:Name="ID">{BBF3AA82-024B-4E71-9EE0-1AF1DE6F9014}</ns0:Property>
+                <ns0:Property ns0:Name="Name">Dim_Producto</ns0:Property>
+                <ns0:Property ns0:Name="VersionMajor">1</ns0:Property>
+                <ns0:Property ns0:Name="VersionMinor">0</ns0:Property>
+                <ns0:Property ns0:Name="VersionBuild">1</ns0:Property>
+                <ns0:Property ns0:Name="VersionComments">Fase 1</ns0:Property>
+                <ns0:Property ns0:Name="VersionGUID">{E57ADB8A-F523-4B65-9F2F-8FD2D0CC4FBC}</ns0:Property>
+                <ns0:Property ns0:Name="PackageFormatVersion">8</ns0:Property>
+                <ns0:Property ns0:Name="Description">Carga de Dim_Producto</ns0:Property>
+                <ns0:Property ns0:Name="ProtectionLevel">0</ns0:Property>
+              </ns0:Properties>
+              <ns0:Parameters />
+            </ns0:PackageMetaData>
+            <ns0:PackageMetaData ns0:Name="Fact_Ventas.dtsx">
+              <ns0:Properties>
+                <ns0:Property ns0:Name="ID">{BBE86334-984E-475D-AF59-62D72801BFFD}</ns0:Property>
+                <ns0:Property ns0:Name="Name">Fact_Ventas</ns0:Property>
+                <ns0:Property ns0:Name="VersionMajor">1</ns0:Property>
+                <ns0:Property ns0:Name="VersionMinor">0</ns0:Property>
+                <ns0:Property ns0:Name="VersionBuild">1</ns0:Property>
+                <ns0:Property ns0:Name="VersionComments">Fase 1</ns0:Property>
+                <ns0:Property ns0:Name="VersionGUID">{B57F767C-60B1-4D5F-B200-81331072B6D3}</ns0:Property>
+                <ns0:Property ns0:Name="PackageFormatVersion">8</ns0:Property>
+                <ns0:Property ns0:Name="Description">Carga de Fact_Ventas</ns0:Property>
+                <ns0:Property ns0:Name="ProtectionLevel">0</ns0:Property>
+              </ns0:Properties>
+              <ns0:Parameters />
+            </ns0:PackageMetaData>
+          </ns0:PackageInfo>
+        </ns0:DeploymentInfo>
+      </ns0:Project>
+    </Manifest>
+  </DeploymentModelSpecificContent>
+  <ControlFlowParts />
   <Miscellaneous />
   <Configurations>
     <Configuration>
       <Name>Development</Name>
       <Options>
-        <OutputPath>bin\Development</OutputPath>
-        <ConnectionManagers />
-        <DeploymentModel>Project</DeploymentModel>
-        <ServerVersion>SQLServer2022</ServerVersion>
+        <OutputPath>bin</OutputPath>
+        <ConnectionMappings />
+        <ConnectionProviderMappings />
+        <ConnectionSecurityMappings />
+        <DatabaseStorageLocations />
+        <TargetServerVersion>SQLServer2022</TargetServerVersion>
+        <ParameterConfigurationValues />
       </Options>
     </Configuration>
   </Configurations>
