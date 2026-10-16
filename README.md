@@ -7,9 +7,11 @@
 ## Integrantes y sección
 
 - **Integrantes:**
-  - _(Marcelo Mejías Caviedes - 301_)
-  - _(Nombre Integrante 2 - 300)_
-  - _(Nombre Integrante 3 - 301)_
+  - Marcelo Mejías Caviedes — paralelo 301
+  - Mishas Silva — paralelo 300
+  - Natalia Cárdenas — paralelo 301
+
+**Profesor:** Hernán Saavedra.
 
 ---
 
