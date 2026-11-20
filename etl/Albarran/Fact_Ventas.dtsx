@@ -1,0 +1,700 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="11/13/2026 4:25:00 AM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="LAB"
+  DTS:CreatorName="LAB\Marcelo Mejías"
+  DTS:DTSID="{3E6A1C88-4D91-42D1-9E14-1C8A77E20000}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="17.0.1016.0"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="Fact_Ventas"
+  DTS:PackageType="5"
+  DTS:VersionBuild="1"
+  DTS:VersionGUID="{3E6A1C88-4D91-42D1-9E14-1C8A77E29999}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\01 Validar Origen"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{3E6A1C88-4D91-42D1-9E14-1C8A77E20001}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="01 Validar Origen"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{9BC08A2B-FC00-46CF-AA77-8755585300A8}"
+          SQLTask:SqlStatementSource="IF EXISTS (SELECT 1 FROM dbo.ventas GROUP BY venta_id HAVING COUNT(*) &gt; 1)&#xA;BEGIN&#xA;    THROW 51000, 'ID de venta duplicado en origen.', 1;&#xA;END;&#xA;&#xA;IF EXISTS (SELECT 1 FROM dbo.detalle_ventas GROUP BY venta_id, producto_id HAVING COUNT(*) &gt; 1)&#xA;BEGIN&#xA;    THROW 51000, 'Grano venta/producto repetido; revisar antes de cargar.', 1;&#xA;END;&#xA;&#xA;IF EXISTS (&#xA;    SELECT 1&#xA;    FROM dbo.detalle_ventas d&#xA;    LEFT JOIN dbo.ventas v ON v.venta_id = d.venta_id&#xA;    WHERE v.venta_id IS NULL&#xA;       OR d.cantidad IS NULL&#xA;       OR d.cantidad &lt;= 0&#xA;       OR d.precio_unitario IS NULL&#xA;       OR d.precio_unitario &lt; 0&#xA;       OR d.descuento IS NULL&#xA;       OR d.descuento &lt; 0&#xA;       OR d.descuento &gt; 1&#xA;       OR TRY_CONVERT(numeric(14,2), CAST(d.cantidad AS decimal(20,0)) * CAST(d.precio_unitario AS decimal(12,2))) IS NULL&#xA;)&#xA;BEGIN&#xA;    THROW 51000, 'Detalle huerfano, cantidad, precio, descuento o monto invalido.', 1;&#xA;END;&#xA;&#xA;IF EXISTS (SELECT 1 FROM dbo.ventas v WHERE NOT EXISTS (SELECT 1 FROM dbo.detalle_ventas d WHERE d.venta_id = v.venta_id))&#xA;BEGIN&#xA;    THROW 51000, 'Hay ventas sin detalle; resolver antes de cargar.', 1;&#xA;END;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\02 Cargar Fact_Ventas"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{3E6A1C88-4D91-42D1-9E14-1C8A77E20002}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="02 Cargar Fact_Ventas"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\02 Cargar Fact_Ventas\OLE DB Destination"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="OLE DB Destination"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[Fact_Ventas]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Connections[OleDbConnection]"
+                  connectionManagerID="{2E54D1CB-6DFD-4478-A01D-6FF83BA283E9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[(localdb)\MSSQLLocalDB]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Fecha_SK]"
+                      cachedDataType="i4"
+                      cachedName="Fecha_SK"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Fecha_SK]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Fecha_SK]" />
+                    <inputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Cliente_SK]"
+                      cachedDataType="i4"
+                      cachedName="Cliente_SK"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Cliente_SK]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Cliente_SK]" />
+                    <inputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Empleado_SK]"
+                      cachedDataType="i4"
+                      cachedName="Empleado_SK"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Empleado_SK]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Empleado_SK]" />
+                    <inputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Producto_SK]"
+                      cachedDataType="i4"
+                      cachedName="Producto_SK"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Producto_SK]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Producto_SK]" />
+                    <inputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Sucursal_SK]"
+                      cachedDataType="i4"
+                      cachedName="Sucursal_SK"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Sucursal_SK]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Sucursal_SK]" />
+                    <inputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Venta_ID]"
+                      cachedDataType="i4"
+                      cachedName="Venta_ID"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Venta_ID]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Venta_ID]" />
+                    <inputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Cantidad]"
+                      cachedDataType="i4"
+                      cachedName="Cantidad"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Cantidad]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Cantidad]" />
+                    <inputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Precio_Unitario]"
+                      cachedDataType="numeric"
+                      cachedName="Precio_Unitario"
+                      cachedPrecision="12"
+                      cachedScale="2"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Precio_Unitario]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Precio_Unitario]" />
+                    <inputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Monto_Bruto]"
+                      cachedDataType="numeric"
+                      cachedName="Monto_Bruto"
+                      cachedPrecision="14"
+                      cachedScale="2"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Monto_Bruto]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Monto_Bruto]" />
+                    <inputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Porcentaje_Descuento]"
+                      cachedDataType="numeric"
+                      cachedName="Porcentaje_Descuento"
+                      cachedPrecision="5"
+                      cachedScale="4"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Porcentaje_Descuento]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Porcentaje_Descuento]" />
+                    <inputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Monto_Descuento]"
+                      cachedDataType="numeric"
+                      cachedName="Monto_Descuento"
+                      cachedPrecision="14"
+                      cachedScale="2"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Monto_Descuento]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Monto_Descuento]" />
+                    <inputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Monto_Neto]"
+                      cachedDataType="numeric"
+                      cachedName="Monto_Neto"
+                      cachedPrecision="14"
+                      cachedScale="2"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Monto_Neto]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Monto_Neto]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Venta_SK]"
+                      dataType="i8"
+                      name="Venta_SK" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Fecha_SK]"
+                      dataType="i4"
+                      name="Fecha_SK" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Cliente_SK]"
+                      dataType="i4"
+                      name="Cliente_SK" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Empleado_SK]"
+                      dataType="i4"
+                      name="Empleado_SK" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Producto_SK]"
+                      dataType="i4"
+                      name="Producto_SK" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Sucursal_SK]"
+                      dataType="i4"
+                      name="Sucursal_SK" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Venta_ID]"
+                      dataType="i4"
+                      name="Venta_ID" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Cantidad]"
+                      dataType="i4"
+                      name="Cantidad" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Precio_Unitario]"
+                      dataType="numeric"
+                      name="Precio_Unitario"
+                      precision="12"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Monto_Bruto]"
+                      dataType="numeric"
+                      name="Monto_Bruto"
+                      precision="14"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Porcentaje_Descuento]"
+                      dataType="numeric"
+                      name="Porcentaje_Descuento"
+                      precision="5"
+                      scale="4" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Monto_Descuento]"
+                      dataType="numeric"
+                      name="Monto_Descuento"
+                      precision="14"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Monto_Neto]"
+                      dataType="numeric"
+                      name="Monto_Neto"
+                      precision="14"
+                      scale="2" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\02 Cargar Fact_Ventas\OLE DB Source"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="OLE DB Source"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset"></property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91">DECLARE @Cargar bit = CASE WHEN EXISTS(SELECT 1 FROM Albarran_DW.dbo.Fact_Ventas) THEN 0 ELSE 1 END;
+SELECT ISNULL(t.Fecha_SK, -1) AS Fecha_SK,
+ ISNULL(c.Cliente_SK, -1) AS Cliente_SK,
+ ISNULL(e.Empleado_SK, -1) AS Empleado_SK,
+ ISNULL(p.Producto_SK, -1) AS Producto_SK,
+ ISNULL(s.Sucursal_SK, -1) AS Sucursal_SK,
+ v.venta_id AS Venta_ID,
+ d.cantidad AS Cantidad,
+ CAST(d.precio_unitario AS numeric(12,2)) AS Precio_Unitario,
+ m.Monto_Bruto,
+ CAST(d.descuento AS numeric(5,4)) AS Porcentaje_Descuento,
+ x.Monto_Descuento,
+ CAST(m.Monto_Bruto - x.Monto_Descuento AS numeric(14,2)) AS Monto_Neto
+FROM dbo.ventas v
+INNER JOIN dbo.detalle_ventas d ON d.venta_id = v.venta_id
+LEFT JOIN Albarran_DW.dbo.Dim_Cliente c ON c.Cliente_BK = v.cliente_id
+LEFT JOIN Albarran_DW.dbo.Dim_Empleado e ON e.Empleado_BK = v.vendedor_id
+LEFT JOIN Albarran_DW.dbo.Dim_Producto p ON p.Producto_BK = d.producto_id
+LEFT JOIN Albarran_DW.dbo.Dim_Sucursal s ON s.Sucursal_BK = v.sucursal_id
+LEFT JOIN Albarran_DW.dbo.Dim_Tiempo t ON t.Fecha_SK = CONVERT(int, CONVERT(char(8), v.fecha, 112))
+CROSS APPLY (SELECT CAST(CAST(d.cantidad AS decimal(20,0)) * CAST(d.precio_unitario AS decimal(12,2)) AS numeric(14,2)) AS Monto_Bruto) m
+CROSS APPLY (SELECT CAST(m.Monto_Bruto * CAST(d.descuento AS numeric(5,4)) AS numeric(14,2)) AS Monto_Descuento) x
+WHERE @Cargar = 1;</property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">2</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Connections[OleDbConnection]"
+                  connectionManagerID="{9BC08A2B-FC00-46CF-AA77-8755585300A8}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[(localdb)_MSSQLLocalDB]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Fecha_SK]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Fecha_SK]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Fecha_SK]"
+                      name="Fecha_SK"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Cliente_SK]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Cliente_SK]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Cliente_SK]"
+                      name="Cliente_SK"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Empleado_SK]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Empleado_SK]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Empleado_SK]"
+                      name="Empleado_SK"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Producto_SK]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Producto_SK]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Producto_SK]"
+                      name="Producto_SK"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Sucursal_SK]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Sucursal_SK]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Sucursal_SK]"
+                      name="Sucursal_SK"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Venta_ID]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Venta_ID]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Venta_ID]"
+                      name="Venta_ID"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Cantidad]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Cantidad]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Cantidad]"
+                      name="Cantidad"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Precio_Unitario]"
+                      dataType="numeric"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Precio_Unitario]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Precio_Unitario]"
+                      name="Precio_Unitario"
+                      precision="12"
+                      scale="2"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Monto_Bruto]"
+                      dataType="numeric"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Monto_Bruto]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Monto_Bruto]"
+                      name="Monto_Bruto"
+                      precision="14"
+                      scale="2"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Porcentaje_Descuento]"
+                      dataType="numeric"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Porcentaje_Descuento]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Porcentaje_Descuento]"
+                      name="Porcentaje_Descuento"
+                      precision="5"
+                      scale="4"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Monto_Descuento]"
+                      dataType="numeric"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Monto_Descuento]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Monto_Descuento]"
+                      name="Monto_Descuento"
+                      precision="14"
+                      scale="2"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Monto_Neto]"
+                      dataType="numeric"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Monto_Neto]"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].Columns[Monto_Neto]"
+                      name="Monto_Neto"
+                      precision="14"
+                      scale="2"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Fecha_SK]"
+                      dataType="i4"
+                      name="Fecha_SK" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Cliente_SK]"
+                      dataType="i4"
+                      name="Cliente_SK" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Empleado_SK]"
+                      dataType="i4"
+                      name="Empleado_SK" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Producto_SK]"
+                      dataType="i4"
+                      name="Producto_SK" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Sucursal_SK]"
+                      dataType="i4"
+                      name="Sucursal_SK" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Venta_ID]"
+                      dataType="i4"
+                      name="Venta_ID" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Cantidad]"
+                      dataType="i4"
+                      name="Cantidad" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Precio_Unitario]"
+                      dataType="numeric"
+                      name="Precio_Unitario"
+                      precision="12"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Monto_Bruto]"
+                      dataType="numeric"
+                      name="Monto_Bruto"
+                      precision="14"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Porcentaje_Descuento]"
+                      dataType="numeric"
+                      name="Porcentaje_Descuento"
+                      precision="5"
+                      scale="4" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Monto_Descuento]"
+                      dataType="numeric"
+                      name="Monto_Descuento"
+                      precision="14"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Monto_Neto]"
+                      dataType="numeric"
+                      name="Monto_Neto"
+                      precision="14"
+                      scale="2" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Fecha_SK]"
+                      dataType="i4"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Fecha_SK]"
+                      name="Fecha_SK" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Cliente_SK]"
+                      dataType="i4"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Cliente_SK]"
+                      name="Cliente_SK" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Empleado_SK]"
+                      dataType="i4"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Empleado_SK]"
+                      name="Empleado_SK" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Producto_SK]"
+                      dataType="i4"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Producto_SK]"
+                      name="Producto_SK" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Sucursal_SK]"
+                      dataType="i4"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Sucursal_SK]"
+                      name="Sucursal_SK" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Venta_ID]"
+                      dataType="i4"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Venta_ID]"
+                      name="Venta_ID" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Cantidad]"
+                      dataType="i4"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Cantidad]"
+                      name="Cantidad" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Precio_Unitario]"
+                      dataType="numeric"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Precio_Unitario]"
+                      name="Precio_Unitario"
+                      precision="12"
+                      scale="2" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Monto_Bruto]"
+                      dataType="numeric"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Monto_Bruto]"
+                      name="Monto_Bruto"
+                      precision="14"
+                      scale="2" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Porcentaje_Descuento]"
+                      dataType="numeric"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Porcentaje_Descuento]"
+                      name="Porcentaje_Descuento"
+                      precision="5"
+                      scale="4" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Monto_Descuento]"
+                      dataType="numeric"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Monto_Descuento]"
+                      name="Monto_Descuento"
+                      precision="14"
+                      scale="2" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Monto_Neto]"
+                      dataType="numeric"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Monto_Neto]"
+                      name="Monto_Neto"
+                      precision="14"
+                      scale="2" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\02 Cargar Fact_Ventas.Paths[OLE DB Source Output]"
+              endId="Package\02 Cargar Fact_Ventas\OLE DB Destination.Inputs[OLE DB Destination Input]"
+              name="OLE DB Source Output"
+              startId="Package\02 Cargar Fact_Ventas\OLE DB Source.Outputs[OLE DB Source Output]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\03 Validar Hechos"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{3E6A1C88-4D91-42D1-9E14-1C8A77E20003}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="03 Validar Hechos"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{2E54D1CB-6DFD-4478-A01D-6FF83BA283E9}"
+          SQLTask:SqlStatementSource="IF EXISTS (&#xA;    SELECT Fecha_SK, Cliente_SK, Empleado_SK, Producto_SK, Sucursal_SK, Venta_ID, Cantidad, Precio_Unitario, Monto_Bruto, Porcentaje_Descuento, Monto_Descuento, Monto_Neto, COUNT_BIG(*) AS Repeticiones&#xA;    FROM (&#xA;        SELECT ISNULL(t.Fecha_SK, -1) AS Fecha_SK,&#xA;               ISNULL(c.Cliente_SK, -1) AS Cliente_SK,&#xA;               ISNULL(e.Empleado_SK, -1) AS Empleado_SK,&#xA;               ISNULL(p.Producto_SK, -1) AS Producto_SK,&#xA;               ISNULL(s.Sucursal_SK, -1) AS Sucursal_SK,&#xA;               v.venta_id AS Venta_ID,&#xA;               d.cantidad AS Cantidad,&#xA;               CAST(d.precio_unitario AS numeric(12,2)) AS Precio_Unitario,&#xA;               m.Monto_Bruto,&#xA;               CAST(d.descuento AS numeric(5,4)) AS Porcentaje_Descuento,&#xA;               x.Monto_Descuento,&#xA;               CAST(m.Monto_Bruto - x.Monto_Descuento AS numeric(14,2)) AS Monto_Neto&#xA;        FROM Albarran.dbo.ventas v&#xA;        JOIN Albarran.dbo.detalle_ventas d ON d.venta_id = v.venta_id&#xA;        LEFT JOIN dbo.Dim_Cliente c ON c.Cliente_BK = v.cliente_id&#xA;        LEFT JOIN dbo.Dim_Empleado e ON e.Empleado_BK = v.vendedor_id&#xA;        LEFT JOIN dbo.Dim_Producto p ON p.Producto_BK = d.producto_id&#xA;        LEFT JOIN dbo.Dim_Sucursal s ON s.Sucursal_BK = v.sucursal_id&#xA;        LEFT JOIN dbo.Dim_Tiempo t ON t.Fecha_SK = CONVERT(int, CONVERT(char(8), v.fecha, 112))&#xA;        CROSS APPLY (SELECT CAST(CAST(d.cantidad AS decimal(20,0)) * CAST(d.precio_unitario AS decimal(12,2)) AS numeric(14,2)) AS Monto_Bruto) m&#xA;        CROSS APPLY (SELECT CAST(m.Monto_Bruto * CAST(d.descuento AS numeric(5,4)) AS numeric(14,2)) AS Monto_Descuento) x&#xA;    ) esperado&#xA;    GROUP BY Fecha_SK, Cliente_SK, Empleado_SK, Producto_SK, Sucursal_SK, Venta_ID, Cantidad, Precio_Unitario, Monto_Bruto, Porcentaje_Descuento, Monto_Descuento, Monto_Neto&#xA;    EXCEPT&#xA;    SELECT Fecha_SK, Cliente_SK, Empleado_SK, Producto_SK, Sucursal_SK, Venta_ID, Cantidad, Precio_Unitario, Monto_Bruto, Porcentaje_Descuento, Monto_Descuento, Monto_Neto, COUNT_BIG(*)&#xA;    FROM dbo.Fact_Ventas&#xA;    GROUP BY Fecha_SK, Cliente_SK, Empleado_SK, Producto_SK, Sucursal_SK, Venta_ID, Cantidad, Precio_Unitario, Monto_Bruto, Porcentaje_Descuento, Monto_Descuento, Monto_Neto&#xA;) OR EXISTS (&#xA;    SELECT Fecha_SK, Cliente_SK, Empleado_SK, Producto_SK, Sucursal_SK, Venta_ID, Cantidad, Precio_Unitario, Monto_Bruto, Porcentaje_Descuento, Monto_Descuento, Monto_Neto, COUNT_BIG(*)&#xA;    FROM dbo.Fact_Ventas&#xA;    GROUP BY Fecha_SK, Cliente_SK, Empleado_SK, Producto_SK, Sucursal_SK, Venta_ID, Cantidad, Precio_Unitario, Monto_Bruto, Porcentaje_Descuento, Monto_Descuento, Monto_Neto&#xA;    EXCEPT&#xA;    SELECT Fecha_SK, Cliente_SK, Empleado_SK, Producto_SK, Sucursal_SK, Venta_ID, Cantidad, Precio_Unitario, Monto_Bruto, Porcentaje_Descuento, Monto_Descuento, Monto_Neto, COUNT_BIG(*) AS Repeticiones&#xA;    FROM (&#xA;        SELECT ISNULL(t.Fecha_SK, -1) AS Fecha_SK,&#xA;               ISNULL(c.Cliente_SK, -1) AS Cliente_SK,&#xA;               ISNULL(e.Empleado_SK, -1) AS Empleado_SK,&#xA;               ISNULL(p.Producto_SK, -1) AS Producto_SK,&#xA;               ISNULL(s.Sucursal_SK, -1) AS Sucursal_SK,&#xA;               v.venta_id AS Venta_ID,&#xA;               d.cantidad AS Cantidad,&#xA;               CAST(d.precio_unitario AS numeric(12,2)) AS Precio_Unitario,&#xA;               m.Monto_Bruto,&#xA;               CAST(d.descuento AS numeric(5,4)) AS Porcentaje_Descuento,&#xA;               x.Monto_Descuento,&#xA;               CAST(m.Monto_Bruto - x.Monto_Descuento AS numeric(14,2)) AS Monto_Neto&#xA;        FROM Albarran.dbo.ventas v&#xA;        JOIN Albarran.dbo.detalle_ventas d ON d.venta_id = v.venta_id&#xA;        LEFT JOIN dbo.Dim_Cliente c ON c.Cliente_BK = v.cliente_id&#xA;        LEFT JOIN dbo.Dim_Empleado e ON e.Empleado_BK = v.vendedor_id&#xA;        LEFT JOIN dbo.Dim_Producto p ON p.Producto_BK = d.producto_id&#xA;        LEFT JOIN dbo.Dim_Sucursal s ON s.Sucursal_BK = v.sucursal_id&#xA;        LEFT JOIN dbo.Dim_Tiempo t ON t.Fecha_SK = CONVERT(int, CONVERT(char(8), v.fecha, 112))&#xA;        CROSS APPLY (SELECT CAST(CAST(d.cantidad AS decimal(20,0)) * CAST(d.precio_unitario AS decimal(12,2)) AS numeric(14,2)) AS Monto_Bruto) m&#xA;        CROSS APPLY (SELECT CAST(m.Monto_Bruto * CAST(d.descuento AS numeric(5,4)) AS numeric(14,2)) AS Monto_Descuento) x&#xA;    ) esperado&#xA;    GROUP BY Fecha_SK, Cliente_SK, Empleado_SK, Producto_SK, Sucursal_SK, Venta_ID, Cantidad, Precio_Unitario, Monto_Bruto, Porcentaje_Descuento, Monto_Descuento, Monto_Neto&#xA;)&#xA;BEGIN&#xA;    THROW 51000, 'Fact_Ventas difiere del origen: filas, claves, importes o multiplicidad.', 1;&#xA;END;&#xA;&#xA;IF EXISTS (&#xA;    SELECT 1 FROM dbo.Fact_Ventas f&#xA;    LEFT JOIN dbo.Dim_Cliente c ON c.Cliente_SK = f.Cliente_SK&#xA;    LEFT JOIN dbo.Dim_Empleado e ON e.Empleado_SK = f.Empleado_SK&#xA;    LEFT JOIN dbo.Dim_Producto p ON p.Producto_SK = f.Producto_SK&#xA;    LEFT JOIN dbo.Dim_Sucursal s ON s.Sucursal_SK = f.Sucursal_SK&#xA;    LEFT JOIN dbo.Dim_Tiempo t ON t.Fecha_SK = f.Fecha_SK&#xA;    WHERE c.Cliente_SK IS NULL OR e.Empleado_SK IS NULL OR p.Producto_SK IS NULL OR s.Sucursal_SK IS NULL OR t.Fecha_SK IS NULL&#xA;)&#xA;BEGIN&#xA;    THROW 51000, 'Clave dimensional huerfana en Fact_Ventas.', 1;&#xA;END;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{3E6A1C88-4D91-42D1-9E14-1C8A77E20004}"
+      DTS:From="Package\01 Validar Origen"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\02 Cargar Fact_Ventas" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{3E6A1C88-4D91-42D1-9E14-1C8A77E20005}"
+      DTS:From="Package\02 Cargar Fact_Ventas"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\03 Validar Hechos" />
+  </DTS:PrecedenceConstraints>
+</DTS:Executable>
+

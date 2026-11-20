@@ -1,0 +1,478 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="11/13/2026 4:15:15 AM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="LAB"
+  DTS:CreatorName="LAB\Marcelo Mejías"
+  DTS:DTSID="{A293BDCF-1023-43F7-9CD9-E28F1374B515}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="17.0.1016.0"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="Package1"
+  DTS:PackageType="5"
+  DTS:VersionBuild="1"
+  DTS:VersionGUID="{A4260670-66CC-4587-94AC-CD4BBA552C06}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\01 Validar Origen"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{3E6A1C88-4D91-42D1-9E11-1C8A77E20001}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="01 Validar Origen"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{9BC08A2B-FC00-46CF-AA77-8755585300A8}"
+          SQLTask:SqlStatementSource="IF EXISTS (SELECT 1 FROM dbo.productos GROUP BY producto_id HAVING COUNT(*) &gt; 1)&#xA;BEGIN&#xA;    THROW 51000, 'Producto duplicado en origen.', 1;&#xA;END;&#xA;&#xA;IF EXISTS (&#xA;    SELECT 1&#xA;    FROM dbo.productos p&#xA;    LEFT JOIN dbo.categorias c ON c.categoria_id = p.categoria_id&#xA;    WHERE p.producto_id IS NULL&#xA;       OR p.producto_id = -1&#xA;       OR c.categoria_id IS NULL&#xA;       OR NULLIF(LTRIM(RTRIM(p.nombre)), '') IS NULL&#xA;       OR NULLIF(LTRIM(RTRIM(c.categoria)), '') IS NULL&#xA;       OR LEN(p.nombre) &gt; 100&#xA;       OR LEN(c.categoria) &gt; 100&#xA;       OR p.precio IS NULL&#xA;       OR p.precio &lt; 0&#xA;)&#xA;BEGIN&#xA;    THROW 51000, 'Producto, categoria o precio invalido; revisar origen.', 1;&#xA;END;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\02 Cargar Productos"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{3E6A1C88-4D91-42D1-9E11-1C8A77E20002}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="02 Cargar Productos"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\02 Cargar Productos\OLE DB Destination"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="OLE DB Destination"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[dbo].[Dim_Producto]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\02 Cargar Productos\OLE DB Destination.Connections[OleDbConnection]"
+                  connectionManagerID="{2E54D1CB-6DFD-4478-A01D-6FF83BA283E9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[(localdb)\MSSQLLocalDB]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Producto_BK]"
+                      cachedDataType="i4"
+                      cachedName="Producto_BK"
+                      externalMetadataColumnId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Producto_BK]"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].Columns[Producto_BK]" />
+                    <inputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Nombre_Producto]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="100"
+                      cachedName="Nombre_Producto"
+                      externalMetadataColumnId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Nombre_Producto]"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].Columns[Nombre_Producto]" />
+                    <inputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Nombre_Categoria]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="100"
+                      cachedName="Nombre_Categoria"
+                      externalMetadataColumnId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Nombre_Categoria]"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].Columns[Nombre_Categoria]" />
+                    <inputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Precio_Catalogo]"
+                      cachedDataType="numeric"
+                      cachedName="Precio_Catalogo"
+                      cachedPrecision="12"
+                      cachedScale="2"
+                      externalMetadataColumnId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Precio_Catalogo]"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].Columns[Precio_Catalogo]" />
+                    <inputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[Descripcion]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="255"
+                      cachedName="Descripcion"
+                      externalMetadataColumnId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Descripcion]"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].Columns[Descripcion]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Producto_SK]"
+                      dataType="i4"
+                      name="Producto_SK" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Producto_BK]"
+                      dataType="i4"
+                      name="Producto_BK" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Nombre_Producto]"
+                      codePage="1252"
+                      dataType="str"
+                      length="100"
+                      name="Nombre_Producto" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Nombre_Categoria]"
+                      codePage="1252"
+                      dataType="str"
+                      length="100"
+                      name="Nombre_Categoria" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Precio_Catalogo]"
+                      dataType="numeric"
+                      name="Precio_Catalogo"
+                      precision="12"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[Descripcion]"
+                      codePage="1252"
+                      dataType="str"
+                      length="255"
+                      name="Descripcion" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\02 Cargar Productos\OLE DB Destination.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\02 Cargar Productos\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\02 Cargar Productos\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\02 Cargar Productos\OLE DB Source"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="OLE DB Source"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset"></property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91">SELECT p.producto_id AS Producto_BK,
+ CAST(LTRIM(RTRIM(p.nombre)) AS varchar(100)) AS Nombre_Producto,
+ CAST(LTRIM(RTRIM(c.categoria)) AS varchar(100)) AS Nombre_Categoria,
+ CAST(p.precio AS numeric(12,2)) AS Precio_Catalogo,
+ CAST(COALESCE(p.descripcion, N'Sin descripción') AS varchar(255)) AS Descripcion
+FROM dbo.productos p
+INNER JOIN dbo.categorias c ON c.categoria_id=p.categoria_id
+WHERE NOT EXISTS(SELECT 1 FROM Albarran_DW.dbo.Dim_Producto d WHERE d.Producto_BK=p.producto_id);</property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">2</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\02 Cargar Productos\OLE DB Source.Connections[OleDbConnection]"
+                  connectionManagerID="{9BC08A2B-FC00-46CF-AA77-8755585300A8}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[(localdb)_MSSQLLocalDB]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].Columns[Producto_BK]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Producto_BK]"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].Columns[Producto_BK]"
+                      name="Producto_BK"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].Columns[Nombre_Producto]"
+                      codePage="1252"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Nombre_Producto]"
+                      length="100"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].Columns[Nombre_Producto]"
+                      name="Nombre_Producto"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].Columns[Nombre_Categoria]"
+                      codePage="1252"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Nombre_Categoria]"
+                      length="100"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].Columns[Nombre_Categoria]"
+                      name="Nombre_Categoria"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].Columns[Precio_Catalogo]"
+                      dataType="numeric"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Precio_Catalogo]"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].Columns[Precio_Catalogo]"
+                      name="Precio_Catalogo"
+                      precision="12"
+                      scale="2"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].Columns[Descripcion]"
+                      codePage="1252"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Descripcion]"
+                      length="255"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].Columns[Descripcion]"
+                      name="Descripcion"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Producto_BK]"
+                      dataType="i4"
+                      name="Producto_BK" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Nombre_Producto]"
+                      codePage="1252"
+                      dataType="str"
+                      length="100"
+                      name="Nombre_Producto" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Nombre_Categoria]"
+                      codePage="1252"
+                      dataType="str"
+                      length="100"
+                      name="Nombre_Categoria" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Precio_Catalogo]"
+                      dataType="numeric"
+                      name="Precio_Catalogo"
+                      precision="12"
+                      scale="2" />
+                    <externalMetadataColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[Descripcion]"
+                      codePage="1252"
+                      dataType="str"
+                      length="255"
+                      name="Descripcion" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Producto_BK]"
+                      dataType="i4"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Producto_BK]"
+                      name="Producto_BK" />
+                    <outputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Nombre_Producto]"
+                      codePage="1252"
+                      dataType="str"
+                      length="100"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Nombre_Producto]"
+                      name="Nombre_Producto" />
+                    <outputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Nombre_Categoria]"
+                      codePage="1252"
+                      dataType="str"
+                      length="100"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Nombre_Categoria]"
+                      name="Nombre_Categoria" />
+                    <outputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Precio_Catalogo]"
+                      dataType="numeric"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Precio_Catalogo]"
+                      name="Precio_Catalogo"
+                      precision="12"
+                      scale="2" />
+                    <outputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Descripcion]"
+                      codePage="1252"
+                      dataType="str"
+                      length="255"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[Descripcion]"
+                      name="Descripcion" />
+                    <outputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\02 Cargar Productos.Paths[OLE DB Source Output]"
+              endId="Package\02 Cargar Productos\OLE DB Destination.Inputs[OLE DB Destination Input]"
+              name="OLE DB Source Output"
+              startId="Package\02 Cargar Productos\OLE DB Source.Outputs[OLE DB Source Output]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\03 Validar Dimension"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{3E6A1C88-4D91-42D1-9E11-1C8A77E20003}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="03 Validar Dimension"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{2E54D1CB-6DFD-4478-A01D-6FF83BA283E9}"
+          SQLTask:SqlStatementSource="IF NOT EXISTS (SELECT 1 FROM dbo.Dim_Producto WHERE Producto_SK = -1 AND Producto_BK = -1)&#xA;BEGIN&#xA;    THROW 51000, 'Falta el miembro desconocido -1.', 1;&#xA;END;&#xA;&#xA;IF EXISTS (SELECT 1 FROM dbo.Dim_Producto GROUP BY Producto_BK HAVING COUNT(*) &gt; 1)&#xA;BEGIN&#xA;    THROW 51000, 'Hay claves de negocio duplicadas.', 1;&#xA;END;&#xA;&#xA;IF EXISTS (&#xA;    SELECT p.producto_id,&#xA;           CAST(LTRIM(RTRIM(p.nombre)) AS varchar(100)) COLLATE DATABASE_DEFAULT,&#xA;           CAST(LTRIM(RTRIM(c.categoria)) AS varchar(100)) COLLATE DATABASE_DEFAULT,&#xA;           CAST(p.precio AS numeric(12,2)),&#xA;           CAST(COALESCE(p.descripcion, N'Sin descripción') AS varchar(255)) COLLATE DATABASE_DEFAULT&#xA;    FROM Albarran.dbo.productos p&#xA;    JOIN Albarran.dbo.categorias c ON c.categoria_id = p.categoria_id&#xA;    EXCEPT&#xA;    SELECT Producto_BK,&#xA;           Nombre_Producto COLLATE DATABASE_DEFAULT,&#xA;           Nombre_Categoria COLLATE DATABASE_DEFAULT,&#xA;           Precio_Catalogo,&#xA;           Descripcion COLLATE DATABASE_DEFAULT&#xA;    FROM dbo.Dim_Producto WHERE Producto_SK &lt;&gt; -1&#xA;) OR EXISTS (&#xA;    SELECT Producto_BK,&#xA;           Nombre_Producto COLLATE DATABASE_DEFAULT,&#xA;           Nombre_Categoria COLLATE DATABASE_DEFAULT,&#xA;           Precio_Catalogo,&#xA;           Descripcion COLLATE DATABASE_DEFAULT&#xA;    FROM dbo.Dim_Producto WHERE Producto_SK &lt;&gt; -1&#xA;    EXCEPT&#xA;    SELECT p.producto_id,&#xA;           CAST(LTRIM(RTRIM(p.nombre)) AS varchar(100)) COLLATE DATABASE_DEFAULT,&#xA;           CAST(LTRIM(RTRIM(c.categoria)) AS varchar(100)) COLLATE DATABASE_DEFAULT,&#xA;           CAST(p.precio AS numeric(12,2)),&#xA;           CAST(COALESCE(p.descripcion, N'Sin descripción') AS varchar(255)) COLLATE DATABASE_DEFAULT&#xA;    FROM Albarran.dbo.productos p&#xA;    JOIN Albarran.dbo.categorias c ON c.categoria_id = p.categoria_id&#xA;)&#xA;BEGIN&#xA;    THROW 51000, 'La dimension no coincide con productos y categorias del origen.', 1;&#xA;END;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{3E6A1C88-4D91-42D1-9E11-1C8A77E20004}"
+      DTS:From="Package\01 Validar Origen"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\02 Cargar Productos" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{3E6A1C88-4D91-42D1-9E11-1C8A77E20005}"
+      DTS:From="Package\02 Cargar Productos"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\03 Validar Dimension" />
+  </DTS:PrecedenceConstraints>
+</DTS:Executable>

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<DTS:ConnectionManager xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ObjectName="(localdb)_MSSQLLocalDB"
+  DTS:DTSID="{9BC08A2B-FC00-46CF-AA77-8755585300A8}"
+  DTS:CreationName="OLEDB">
+  <DTS:ObjectData>
+    <DTS:ConnectionManager
+      DTS:ConnectRetryCount="1"
+      DTS:ConnectRetryInterval="5"
+      DTS:ConnectionString="Data Source=localhost;Initial Catalog=Albarran;Provider=MSOLEDBSQL19.1;Persist Security Info=False;Integrated Security=SSPI;Auto Translate=False;Trust Server Certificate=True;Application Name=SSIS-Albarran-{9BC08A2B-FC00-46CF-AA77-8755585300A8}(localdb)\MSSQLLocalDB;" />
+  </DTS:ObjectData>
+</DTS:ConnectionManager>
