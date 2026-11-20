@@ -8,8 +8,7 @@
 
 - **Integrantes:**
   - Marcelo Mejías Caviedes — paralelo 301
-  - Mishas Silva — paralelo 300
-  - Natalia Cárdenas — paralelo 301
+
 
 **Profesor:** Hernán Saavedra
 
@@ -29,7 +28,7 @@ Diseñar e implementar una solución integral de Inteligencia de Negocios basada
 
 ## KPI definidos
 
-A partir de la exploración de datos en [notebooks/modelo_de_negocios.ipynb](file:///notebooks/modelo_de_negocios.ipynb), se definieron 6 KPIs clave para el seguimiento del negocio:
+A partir de la exploración de datos en [notebooks/modelo_de_negocios.ipynb](notebooks/modelo_de_negocios.ipynb), se definieron 6 KPIs clave para el seguimiento del negocio:
 
 | KPI | Nombre | Fórmula | ¿Para qué le sirve al dueño? |
 | :---: | :--- | :--- | :--- |
@@ -76,33 +75,32 @@ Una fila por cada línea de detalle de producto vendido en cada transacción de 
 
 ## Proceso ETL - Fase 1
 
-- Herramienta: Visual Studio + SQL Server Integration Services (SSIS).
-- Ubicación del proyecto: `etl/proyecto-ssis/`
+- **Herramienta:** Visual Studio Community 2026 + SQL Server Integration Services Projects 2022+.
+- **Ubicación del proyecto:** `etl/Albarran/` ([Albarran.slnx](etl/Albarran/Albarran.slnx)).
+- **Conexiones compartidas:** `Albarran_OLTP.conmgr` (origen `Albarran`) y `Albarran_DW.conmgr` (destino `Albarran_DW`).
 
-### Calendario de Dim_Tiempo (issue #6)
+### Calendario de `Dim_Tiempo`
 
-El script `database/scripts/03_poblar_dim_tiempo.sql` genera el calendario de **3.652 fechas entre 2017 y 2026**, con año, semestre, trimestre, mes, día y marca de fin de semana. Conserva el miembro desconocido `-1` y permite ejecutar la carga sin duplicados. Documentación técnica: `docs/modelo-dimensional/dimension_tiempo.md`.
+El script [03_poblar_dim_tiempo.sql](database/scripts/03_poblar_dim_tiempo.sql) genera el calendario de **3.652 fechas entre 2017 y 2026**, con año, semestre, trimestre, mes, día y marca de fin de semana. Conserva el miembro desconocido `-1` y permite ejecutar la carga sin duplicados. Documentación técnica: [dimension_tiempo.md](docs/modelo-dimensional/dimension_tiempo.md).
 
----
+### Paquetes SSIS implementados y validados
 
-### Paquetes de dimensiones (issues #9–#12)
+| Orden | Paquete | Filas cargadas | Descripción |
+| :---: | :--- | ---: | :--- |
+| 1 | `Dim_Sucursal.dtsx` | 3 (+ `-1`) | Une `sucursales` y `comunas`, aplica `LTRIM/RTRIM` y valida origen/destino. |
+| 2 | `Dim_Producto.dtsx` | 20 (+ `-1`) | Une `productos` y `categorias`, reemplaza descripciones `NULL` por `Sin descripción`. |
+| 3 | `Dim_Empleado.dtsx` | 15 (+ `-1`) | Une `empleados` y `cargos`, normaliza `Nombre_Completo` y `Nombre_Cargo`. |
+| 4 | `Dim_Cliente.dtsx` | 20 (+ `-1`) | Normaliza `Nombre_Completo`, `Sexo` (`Masculino`/`Femenino`) y `Estado_Civil`. |
+| 5 | `Fact_Ventas.dtsx` | 365 | Resuelve las 5 claves sustitutas (`SK`, usando `-1` si falta) y calcula `Monto_Bruto`, `Monto_Descuento` y `Monto_Neto`. |
 
-| Issue | Paquete | Filas reales verificadas | Guía |
-|---|---|---:|---|
-| #9 | Dim_Sucursal.dtsx | 3 | [Sucursal](etl/proyecto-ssis/Dim_Sucursal.md) |
-| #10 | Dim_Cliente.dtsx | 20 | [Cliente](etl/proyecto-ssis/Dim_Cliente.md) |
-| #11 | Dim_Empleado.dtsx | 15 | [Empleado](etl/proyecto-ssis/Dim_Empleado.md) |
-| #12 | Dim_Producto.dtsx | 20 | [Producto](etl/proyecto-ssis/Dim_Producto.md) |
+Todos los paquetes incluyen tareas **Execute SQL Task** de validación previa en origen y validación posterior en destino, y evitan duplicados al re-ejecutarse.
 
-Todos conservan el miembro desconocido adicional -1 y extraen cero filas al repetir sobre la misma fuente. Clientes transforma nombres y sexo con textos Unicode y convierte al VARCHAR del DDL; empleados une cargos y normaliza nombres; productos sustituye las 20 descripciones nulas por Sin descripción. Las guías incluyen conexiones, consultas y evidencias SQL. La ejecución real en SSIS Windows sigue pendiente.
+### Validación de cuadratura
 
-### Carga de Fact_Ventas e integración SSIS (issue #13)
-
-[Fact_Ventas.dtsx](etl/proyecto-ssis/Fact_Ventas.dtsx) resuelve las cinco claves dimensionales con Lookup, asigna el miembro -1 cuando no encuentra coincidencias y calcula bruto, descuento y neto mediante Derived Column. [Configuración, dependencias y explicación](etl/proyecto-ssis/Fact_Ventas.md).
-
-El proyecto SSIS registra los nombres reales de los cinco paquetes. Integrar primero los PR de #9–#12 y después #13. La copia conjunta de integración compila para SQL Server 2022; la carga SQL equivalente de ensayo produce 365 ventas, 724 unidades y 414.022.446 de bruto/neto, sin nuevas filas al repetir. Las nueve pruebas SQL del #14 pasan en ese ensayo. Evidencias en `docs/evidencias/validacion_ventas.json`, `compilacion_proyecto_ssis.json` y `cuadratura_sql_ensayo.json`.
-
-**Pendiente:** ejecución real de los cinco paquetes en SSIS Windows, capturas de resultados y respaldo final del grupo. Las cargas SQL de ensayo y la compilación no sustituyen esa ejecución.
+Tras ejecutar los 5 paquetes SSIS en Visual Studio 2026, el script [04_validacion_cuadratura_dw.sql](database/scripts/04_validacion_cuadratura_dw.sql) aprobó las **9 pruebas de cuadratura (`APROBADO [PASS]`)**:
+- **Volumetría:** 365 transacciones y 724 unidades vendidas.
+- **Financiero:** `$414.022.446` CLP de facturación bruta y neta (`$0` de descuento).
+- **Integridad y calidad:** 0 claves huérfanas (`SK = -1`), 0 nulos en `Dim_Producto.Descripcion`, miembros `-1` presentes en las 5 dimensiones y 3.652 días en `Dim_Tiempo`.
 
 ---
 
@@ -111,7 +109,7 @@ El proyecto SSIS registra los nombres reales de los cinco paquetes. Integrar pri
 _(Corresponde a la Fase 2 del certamen)_
 
 - Herramienta: SQL Server Analysis Services (SSAS).
-- Ubicación: `olap/proyecto-ssas/`
+- Ubicación: `olap/Albarran_OLAP (SSAS)/`
 
 ---
 
@@ -126,20 +124,20 @@ _(Corresponde a la Fase 2 del certamen)_
 
 ## Tecnologías utilizadas (Versiones Específicas)
 
-- **Motor de Base de Datos:** Microsoft SQL Server 2022 Developer Edition (RTM-CU27-GDR, v16.0.4305.5, x64).
-- **Gestor de Base de Datos (Windows):** SQL Server Management Studio (SSMS) v19.3 o superior / v20.x.
-- **Entorno de Virtualización (macOS ARM64 / Linux):** Docker Desktop v29.8.1 con emulación `linux/amd64` (Rosetta 2).
+- **Motor de Base de Datos:** Microsoft SQL Server 2022 Developer Edition / LocalDB.
+- **Gestor de Base de Datos (Windows):** SQL Server Management Studio (SSMS) v22.
+- **Entorno de Virtualización (macOS ARM64 / Linux):** Docker Desktop con emulación `linux/amd64` (Rosetta 2).
 - **Entorno Analítico y Conectividad (Python):**
-  - Python v3.14.8 (o compatible >=3.11).
-  - Gestor de entornos y paquetes: `uv` v0.12.2.
-  - Conector nativo SQL Server: `pymssql` v2.4.4.
-  - ORM / Conexión SQL: `SQLAlchemy` v2.1.4.
-  - Procesamiento de datos: `pandas` v3.0.6 y `numpy` v2.5.4.
-  - Visualización: `matplotlib` v3.11.2 y `seaborn` v0.13.2.
-  - Notebook interactivo: `jupyterlab` v4.6.4 / `notebook` v7.6.3 / `ipykernel` v7.4.0.
-- **Herramienta ETL (Fase 1 - Windows 11):** Visual Studio 2022 (v17.x Community/Professional) + extensión _SQL Server Integration Services Projects_ (SSIS v16.x).
-- **Herramienta OLAP (Fase 2 - Windows 11):** Visual Studio 2022 + extensión _Microsoft Analysis Services Projects_ (SSAS).
-- **Dashboard y BI (Fase 2 - Windows 11):** Microsoft Power BI Desktop (Versión 2.128+ / 2026 x64).
+  - Python v3.13 (compatible `>=3.11`).
+  - Gestor de entornos y paquetes: `uv`.
+  - Conector nativo SQL Server: `pymssql`.
+  - ORM / Conexión SQL: `SQLAlchemy`.
+  - Procesamiento de datos: `pandas` y `numpy`.
+  - Visualización: `matplotlib` y `seaborn`.
+  - Notebook interactivo: `jupyterlab` / `notebook` / `ipykernel`.
+- **Herramienta ETL (Fase 1 - Windows 11):** Visual Studio Community 2026 + extensión _SQL Server Integration Services Projects 2022+_.
+- **Herramienta OLAP (Fase 2 - Windows 11):** Visual Studio + extensión _Microsoft Analysis Services Projects_.
+- **Dashboard y BI (Fase 2 - Windows 11):** Microsoft Power BI Desktop.
 
 ---
 
@@ -176,15 +174,19 @@ C2-Caso1-IN/
 ├── notebooks/
 │   └── modelo_de_negocios.ipynb       # EDA, 6 KPIs formulados y simulación Kimball en Pandas
 ├── etl/
-│   └── proyecto-ssis/                 # Solución oficial SSIS en Visual Studio 2022
-│       ├── Albarran_ETL.sln           # Solución de Visual Studio 2022
-│       ├── Albarran_ETL.dtproj        # Proyecto SSIS (SQLServer2022)
-│       ├── Albarran_OLTP.conmgr       # Conexión OLE DB a Albarran (Origen)
-│       ├── Albarran_DW.conmgr         # Conexión OLE DB a Albarran_DW (Destino)
-│       ├── Project.params             # Parámetros del proyecto
-│       └── README.md                  # Guía paso a paso para desarrollo en Windows
+│   └── Albarran/                      # Solución oficial SSIS en Visual Studio 2026
+│       ├── Albarran.slnx              # Solución de Visual Studio 2026
+│       ├── Albarran.dtproj            # Proyecto SSIS (SQLServer2022)
+│       ├── Albarran_OLTP.conmgr       # Conexión OLE DB compartida a Albarran (Origen)
+│       ├── Albarran_DW.conmgr         # Conexión OLE DB compartida a Albarran_DW (Destino)
+│       ├── Dim_Sucursal.dtsx          # Carga de Dim_Sucursal
+│       ├── Dim_Producto.dtsx          # Carga de Dim_Producto
+│       ├── Dim_Empleado.dtsx          # Carga de Dim_Empleado
+│       ├── Dim_Cliente.dtsx           # Carga de Dim_Cliente
+│       ├── Fact_Ventas.dtsx           # Carga de Fact_Ventas
+│       └── Project.params             # Parámetros del proyecto
 ├── olap/
-│   └── proyecto-ssas/                 # Proyecto SSAS de Visual Studio (Fase 2)
+│   └── Albarran_OLAP (SSAS)/          # Proyecto SSAS de Visual Studio (Fase 2)
 └── powerbi/
     └── dashboard.pbix                 # Dashboard final de Power BI (Fase 2)
 ```
@@ -220,12 +222,12 @@ El script `restore.sh` está diseñado exclusivamente para este entorno:
    docker exec -i sqlserver_albarran /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'StrongPassword123!' -C < database/scripts/04_validacion_cuadratura_dw.sql
    ```
 
-### Opción B: Windows 11 x64 (Entorno Nativo de Compañeros con Visual Studio)
+### Opción B: Windows 11 x64 (Entorno Nativo con Visual Studio 2026)
 
-1. Abrir **SQL Server Management Studio (SSMS)** y restaurar `database/backup/Albarran.bak`.
+1. Abrir **SQL Server Management Studio (SSMS 22)** y restaurar `database/backup/Albarran.bak`.
 2. Ejecutar los scripts `02_crear_modelo_dimensional.sql` y `03_poblar_dim_tiempo.sql`.
-3. Abrir la solución SSIS en Visual Studio 2022: `etl/proyecto-ssis/Albarran_ETL.sln`.
-4. Verificar las conexiones OLE DB en `Albarran_OLTP.conmgr` y `Albarran_DW.conmgr`.
-5. Ejecutar los paquetes SSIS de dimensiones y hechos según la secuencia documentada en `etl/proyecto-ssis/README.md`.
+3. Abrir la solución SSIS en Visual Studio 2026: `etl/Albarran/Albarran.slnx`.
+4. Verificar las conexiones OLE DB compartidas en `Albarran_OLTP.conmgr` y `Albarran_DW.conmgr`.
+5. Ejecutar los 4 paquetes de dimensiones (`Dim_Sucursal.dtsx`, `Dim_Producto.dtsx`, `Dim_Empleado.dtsx`, `Dim_Cliente.dtsx`) y luego `Fact_Ventas.dtsx`.
 6. En SSMS, ejecutar `04_validacion_cuadratura_dw.sql` para comprobar que las 9 pruebas de cuadratura financiera y volumétrica resulten **`APROBADO [PASS]`**.
-7. Generar el backup final `database/backup/Albarran_DW.bak` ejecutando el comando de backup documentado.
+7. Generar el backup final `database/backup/Albarran_DW.bak`.
