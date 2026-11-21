@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DataSource xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ddl2="http://schemas.microsoft.com/analysisservices/2003/engine/2" xmlns:ddl2_2="http://schemas.microsoft.com/analysisservices/2003/engine/2/2" xmlns:ddl100_100="http://schemas.microsoft.com/analysisservices/2008/engine/100/100">
+  <ID>Albarran_DW</ID>
+  <Name>Albarran_DW</Name>
+  <ConnectionString>Provider=SQLNCLI11.1;Data Source=localhost;Integrated Security=SSPI;Initial Catalog=Albarran_DW</ConnectionString>
+  <ImpersonationInfo>
+    <ImpersonationMode>ImpersonateServiceAccount</ImpersonationMode>
+  </ImpersonationInfo>
+  <Timeout>PT0S</Timeout>
+</DataSource>
+

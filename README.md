@@ -34,7 +34,7 @@ A partir de la exploración de datos en [notebooks/modelo_de_negocios.ipynb](not
 | :---: | :--- | :--- | :--- |
 | **KPI-01** | **Ingresos Totales por Ventas** | $\sum (\text{Cantidad} \times \text{Precio Unitario})$ | Mide cuánto dinero entra al negocio ($414.022.446 CLP en 2017) para ver la evolución mes a mes. |
 | **KPI-02** | **Ticket Promedio** | $\frac{\text{Ingreso Total}}{\text{Total de Ventas}}$ | Muestra el gasto promedio por compra ($1.134.308 CLP) para evaluar venta de complementos. |
-| **KPI-03** | **Unidades por Categoría** | $\sum \text{Cantidad por Categoría}$ | Identifica los muebles con mayor salida (Comedores y Bares) para planificar compras y stock. |
+| **KPI-03** | **Unidades por Categoría** | $\sum \text{Cantidad por Categoría}$ | Identifica los muebles con mayor salida (Comedores, Sofás y Dormitorio) para planificar compras y stock. |
 | **KPI-04** | **Ventas por Sucursal** | $\sum \text{Venta Neta por Tienda}$ | Compara la facturación de las tiendas: Manquehue ($149,3M), Viña del Mar ($134,5M) y Franklin ($130,2M). |
 | **KPI-05** | **Rendimiento por Vendedor** | $\text{Monto Vendido y N° de Ventas}$ | Evalúa el desempeño de los 6 vendedores frente a su sueldo base ($255.000 CLP mensual). |
 | **KPI-06** | **Perfil de Clientes** | $\% \text{ de ventas por grupo}$ | Revela que el 89% de las ventas son a clientes casados, orientando la publicidad a familias. |
@@ -106,19 +106,47 @@ Tras ejecutar los 5 paquetes SSIS en Visual Studio 2026, el script [04_validacio
 
 ## Cubo OLAP - Fase 2
 
-_(Corresponde a la Fase 2 del certamen)_
+- **Herramienta:** Visual Studio + SQL Server Analysis Services (SSAS Multidimensional).
+- **Ubicación del proyecto:** `olap/Albarran_OLAP (SSAS)/` ([Albarran_OLAP (SSAS).slnx](olap/Albarran_OLAP%20%28SSAS%29/Albarran_OLAP%20%28SSAS%29.slnx)).
+- **Base desplegada y procesada:** `Albarran_OLAP` en `localhost` (conectada a `Albarran_DW` con `ImpersonateServiceAccount` y rol `db_datareader` para `NT Service\MSSQLServerOLAPService`).
+- **Cubo:** `Cubo_Ventas_Albarran.cube` (estado `Processed`).
 
-- Herramienta: SQL Server Analysis Services (SSAS).
-- Ubicación: `olap/Albarran_OLAP (SSAS)/`
+### Dimensiones y jerarquías implementadas
+
+| Dimensión | Archivo | Atributos principales | Jerarquía configurada |
+| :--- | :--- | :--- | :--- |
+| `Dim Tiempo` | `Dim Tiempo.dim` | `Fecha SK`, `Anio`, `Semestre`, `Trimestre`, `Nombre Mes`, `Mes`, `Dia`, `Es Fin De Semana` | **Calendario:** `Anio` → `Semestre` → `Trimestre` → `Nombre Mes` → `Fecha SK` |
+| `Dim Sucursal` | `Dim Sucursal.dim` | `Sucursal SK`, `Nombre Comuna`, `Nombre Sucursal` | **Ubicación:** `Nombre Comuna` → `Sucursal SK` |
+| `Dim Producto` | `Dim Producto.dim` | `Producto SK`, `Nombre Producto`, `Nombre Categoria`, `Precio Catalogo` | **Producto:** `Nombre Categoria` → `Producto SK` |
+| `Dim Empleado` | `Dim Empleado.dim` | `Empleado SK`, `Nombre Completo`, `Nombre Cargo`, `Sueldo Base` | Atributos planos para análisis por cargo y vendedor |
+| `Dim Cliente` | `Dim Cliente.dim` | `Cliente SK`, `Nombre Completo`, `Sexo`, `Estado Civil` | Atributos planos para segmentación demográfica |
+
+### Medidas del cubo y cálculo MDX
+
+- **Medidas base (`Fact_Ventas`):** `Cantidad`, `Precio Unitario`, `Monto Bruto`, `Porcentaje Descuento`, `Monto Descuento`, `Monto Neto`, `Fact Ventas Count` y `Total_Ventas` (`DistinctCount` de `Venta_ID`).
+- **Medida calculada MDX (`Ticket Promedio`):**
+  ```mdx
+  CALCULATE;
+  CREATE MEMBER CURRENTCUBE.[Measures].[Ticket Promedio]
+   AS IIF([Measures].[Total_Ventas] = 0, NULL, [Measures].[Monto Neto] / [Measures].[Total_Ventas]),
+  FORMAT_STRING = "Currency",
+  VISIBLE = 1;
+  ```
+- **Verificación MDX directa sobre el cubo procesado:** `Monto Neto = $414.022.446`, `Total_Ventas = 365`, `Ticket Promedio = $1.134.308,07`, `Cantidad = 724`.
 
 ---
 
 ## Dashboard Power BI - Fase 2
 
-_(Corresponde a la Fase 2 del certamen)_
-
-- Herramienta: Microsoft Power BI Desktop.
-- Ubicación: `powerbi/dashboard.pbix`
+- **Herramienta:** Microsoft Power BI Desktop.
+- **Ubicación:** [powerbi/dashboard.pbix](powerbi/dashboard.pbix).
+- **Modo de conexión:** *Live Connection* directa al cubo `Cubo_Ventas_Albarran` desplegado en `localhost`.
+- **Visualizaciones y análisis de KPIs:**
+  - Tarjetas ejecutivas de resumen (**KPI-01** Ingresos Totales `$414.022.446`, **KPI-02** Ticket Promedio `$1.134.308`, `365` ventas y `724` unidades).
+  - Evolución temporal de ventas mensuales (2017) con navegación jerárquica de `Dim Tiempo`.
+  - Comparativa de facturación y transacciones por sucursal (**KPI-04**: Manquehue `$149,3M`, Viña del Mar `$134,5M`, Franklin `$130,2M`).
+  - Desglose por categoría y producto (**KPI-03**: liderazgo de Comedores, Sofás y Dormitorio).
+  - Productividad de los 6 vendedores frente a su sueldo base (**KPI-05**) y segmentación demográfica de clientes (**KPI-06**: `89,4%` casados, `68,7%` masculino), con segmentadores interactivos.
 
 ---
 
@@ -159,7 +187,9 @@ C2-Caso1-IN/
 │   │   ├── matriz_mapeo_sttm.md       # Matriz Source-to-Target Mapping para SSIS
 │   │   ├── dimension_tiempo.md        # Documentación de generación del calendario
 │   │   └── validacion_cuadratura_dw.md # Protocolo de auditoría y respaldo Albarran_DW.bak
-│   └── presentacion/                  # Diapositivas para la defensa de las fases
+│   ├── informe_proyecto.md            # Informe consolidado del proyecto (Markdown)
+│   ├── informe_proyecto.docx          # Informe consolidado del proyecto (Word)
+│   └── presentacion/                  # Presentación final (presentacion.pdf) y capturas del proyecto
 ├── database/
 │   ├── backup/
 │   │   ├── Albarran.bak               # Base transaccional original (entregable)
@@ -186,21 +216,29 @@ C2-Caso1-IN/
 │       ├── Fact_Ventas.dtsx           # Carga de Fact_Ventas
 │       └── Project.params             # Parámetros del proyecto
 ├── olap/
-│   └── Albarran_OLAP (SSAS)/          # Proyecto SSAS de Visual Studio (Fase 2)
+│   └── Albarran_OLAP (SSAS)/          # Proyecto SSAS Multidimensional (Fase 2)
+│       ├── Albarran_OLAP (SSAS).slnx  # Solución de Visual Studio
+│       ├── Albarran_OLAP.dwproj       # Proyecto Analysis Services
+│       ├── Albarran DW.ds / .dsv      # Data Source y Data Source View (Esquema Estrella)
+│       ├── Dim *.dim                  # 5 dimensiones (Tiempo, Sucursal, Producto, Empleado, Cliente)
+│       └── Cubo_Ventas_Albarran.cube  # Cubo OLAP con medidas base y cálculo MDX Ticket Promedio
 └── powerbi/
-    └── dashboard.pbix                 # Dashboard final de Power BI (Fase 2)
+    └── dashboard.pbix                 # Dashboard final de Power BI conectado al cubo SSAS (Fase 2)
 ```
 
 ---
 
 ## Instrucciones de ejecución / revisión
 
-### Opción A: macOS Apple Silicon (ARM64) / Linux (con Docker)
+> [!IMPORTANT]
+> **Compatibilidad de plataformas:** **Visual Studio (SSIS/SSAS), SQL Server Analysis Services (SSAS), SSMS y Microsoft Power BI Desktop no corren en macOS**. En macOS únicamente es posible levantar el motor de base de datos SQL Server (mediante Docker `linux/amd64`) y ejecutar el análisis en Python/Jupyter. Para ejecutar los paquetes ETL, desplegar/procesar el cubo OLAP y abrir `dashboard.pbix` es obligatorio utilizar **Windows x64** (nativo, máquina virtual o escritorio remoto).
 
-El script `restore.sh` está diseñado exclusivamente para este entorno:
+### Opción A: macOS Apple Silicon (ARM64) / Linux (solo motor SQL Server en Docker + Python)
+
+Este entorno sirve únicamente para exploración de datos (EDA), notebook Python y validación de scripts SQL (`02`, `03`, `04`); no soporta SSIS, SSAS ni Power BI Desktop:
 
 1. Asegurarse de tener Docker Desktop abierto.
-2. Iniciar el contenedor y restaurar la base transaccional ejecutando:
+2. Iniciar el contenedor SQL Server 2022 (`linux/amd64`) y restaurar la base transaccional ejecutando:
    ```bash
    chmod +x docker/restore.sh
    ./docker/restore.sh
@@ -217,12 +255,14 @@ El script `restore.sh` está diseñado exclusivamente para este entorno:
    ```bash
    docker exec -i sqlserver_albarran /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'StrongPassword123!' -C < database/scripts/03_poblar_dim_tiempo.sql
    ```
-6. Ejecutar la auditoría de cuadratura (validación pre-ETL):
+6. Ejecutar la auditoría de cuadratura en SQL:
    ```bash
    docker exec -i sqlserver_albarran /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'StrongPassword123!' -C < database/scripts/04_validacion_cuadratura_dw.sql
    ```
 
-### Opción B: Windows 11 x64 (Entorno Nativo con Visual Studio 2026)
+### Opción B: Windows 10/11 x64 (Entorno completo: SQL Server + Visual Studio + SSIS + SSAS + Power BI)
+
+*(Si solo deseas revisar la Fase 2 directamente, puedes restaurar `database/backup/Albarran_DW.bak` en SQL Server y pasar directo al paso 8).*
 
 1. Abrir **SQL Server Management Studio (SSMS 22)** y restaurar `database/backup/Albarran.bak`.
 2. Ejecutar los scripts `02_crear_modelo_dimensional.sql` y `03_poblar_dim_tiempo.sql`.
@@ -231,3 +271,11 @@ El script `restore.sh` está diseñado exclusivamente para este entorno:
 5. Ejecutar los 4 paquetes de dimensiones (`Dim_Sucursal.dtsx`, `Dim_Producto.dtsx`, `Dim_Empleado.dtsx`, `Dim_Cliente.dtsx`) y luego `Fact_Ventas.dtsx`.
 6. En SSMS, ejecutar `04_validacion_cuadratura_dw.sql` para comprobar que las 9 pruebas de cuadratura financiera y volumétrica resulten **`APROBADO [PASS]`**.
 7. Generar el backup final `database/backup/Albarran_DW.bak`.
+8. Abrir la solución SSAS `olap/Albarran_OLAP (SSAS)/Albarran_OLAP (SSAS).slnx` en Visual Studio, verificar la conexión en `Albarran DW.ds`, desplegar (*Deploy*) y procesar (*Process Full*) el cubo `Cubo_Ventas_Albarran`.
+9. Abrir [powerbi/dashboard.pbix](powerbi/dashboard.pbix) en **Microsoft Power BI Desktop** y actualizar las visualizaciones conectadas en *Live Connection* a `Cubo_Ventas_Albarran` en `localhost`.
+
+---
+
+## Autoría y aportes
+
+- **Marcelo Mejías Caviedes (Paralelo 301):** Análisis exploratorio (EDA), formulación de KPIs, diseño dimensional (Kimball), scripts SQL y validación de cuadratura, migración e implementación ETL en SSIS (`etl/Albarran/`), construcción y procesamiento del cubo OLAP en SSAS (`olap/Albarran_OLAP (SSAS)/`), dashboard en Power BI (`powerbi/dashboard.pbix`), documentación e informe final.

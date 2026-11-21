@@ -11,6 +11,7 @@
 *.swp
 *.swo
 *~
+~$*
 
 # Operating System Metadata (macOS & Windows)
 .DS_Store

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Development</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Albarran_OLAP</RootNamespace>
+    <AssemblyName>Albarran_OLAP</AssemblyName>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <Name>Albarran_OLAP</Name>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Development' ">
+    <OutputPath>bin</OutputPath>
+    <DeploymentServerName>localhost</DeploymentServerName>
+    <DeploymentServerEdition>Developer</DeploymentServerEdition>
+    <DeploymentServerVersion>Version160</DeploymentServerVersion>
+    <DeploymentServerDatabase>Albarran_OLAP</DeploymentServerDatabase>
+    <DeploymentMode>DeployChanges</DeploymentMode>
+  </PropertyGroup>
+  <ItemGroup>
+    <DataSource Include="Albarran_DW.ds" />
+  </ItemGroup>
+  <ItemGroup>
+    <DataSourceView Include="Albarran_DW.dsv" />
+  </ItemGroup>
+  <ItemGroup>
+    <Dimension Include="Dim_Tiempo.dim" />
+    <Dimension Include="Dim_Sucursal.dim" />
+    <Dimension Include="Dim_Producto.dim" />
+    <Dimension Include="Dim_Empleado.dim" />
+    <Dimension Include="Dim_Cliente.dim" />
+  </ItemGroup>
+  <ItemGroup>
+    <Cube Include="Albarran_OLAP.cube" />
+  </ItemGroup>
+</Project>
+
